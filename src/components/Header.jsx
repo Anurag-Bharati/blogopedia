@@ -35,14 +35,14 @@ const Header = () => {
   return (
     <header id="header" className="relative w-full mt-[90px]">
       {/* Wrapper for top-header */}
-      <div className="fixed top-0 left-0 right-0 z-10 bg-current border-b-[1px] border-[#222]">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-black border-b-[1px] border-[#222]">
         <div className="flex py-3 md:py-5 px-6 md:px-8 mx-auto max-w-[1280px]">
           <Link href="/" scroll={false} className="inline-block py-1 whitespace-nowrap mr-2 w-40 text-center my-auto z-10">
             <Image src="/assets/svgs/logo-full.svg" width={120} height={120} alt="Blogopedia logo; varient: full" />
           </Link>
           <div className="flex basis-full justify-center">
             <div className="flex gap-4 items-center float-left px-0 pl-7 md:px-7 py-1 w-full justify-end md:justify-center isolate">
-              <div className="absolute w-full h-full  bg-current z-0"></div>
+              <div className="absolute w-full h-full  bg-black z-0"></div>
               <ul
                 className="flex flex-col list-none  hover:cursor-pointer "
                 onMouseEnter={showAllBooks}
@@ -59,7 +59,7 @@ const Header = () => {
                       showBooks ? "translate-y-0" : "-translate-y-full"
                     }`}
                   >
-                    <div className="relative w-auto  bg-current border-[1px] border-[#222]">
+                    <div className="relative w-auto  bg-black border-[1px] border-[#222]">
                       <div className="flex w-auto">
                         <ul className="py-2 text-md md:text-sm text-white max-h-72 overflow-y-scroll nice-scroll-bar w-80">
                           {data.categories.map((e, i) => (
@@ -71,7 +71,7 @@ const Header = () => {
                           ))}
                           <div className="border-b-[1px] border-[#222] h-px my-2"></div>
                           <Link href="/#" className="inline-flex flex-row py-2 opacity-100 mx-3 px-3 items-center hover:text-white" type="button">
-                            <p className="text-md uppercase text-current pointer-events-none">Show More</p>
+                            <p className="text-md uppercase text-white pointer-events-none">Show More</p>
                             <BiRightArrowAlt className="text-md ml-1 font-light pointer-events-none" />
                           </Link>
                         </ul>
@@ -150,7 +150,7 @@ const Header = () => {
                 </div>
                 {searchQuery !== "" && (
                   <div className="absolute top-32 w-full left-0 md:left-auto  md:top-16 md:w-[350px]  border border-[#222]">
-                    <div className="max-w-7xl text-sm md:text-base mx-auto bg-current">
+                    <div className="max-w-7xl text-sm md:text-base mx-auto bg-black">
                       <ul className="py-2">
                         {filteredStuff.length > 0 ? (
                           filteredStuff.map((book) => (
@@ -167,7 +167,7 @@ const Header = () => {
                 )}
               </form>
 
-              <div className=" text-current flex gap-4 justify-evenly ml-6 text-white">
+              <div className="flex gap-4 justify-evenly ml-6 text-white">
                 <span
                   className="relative inline-flex gap-2 justify-center items-center border-2 rounded-full px-3 py-1 cursor-pointer hover:bg-white hover:text-black transition duration-300 ease-in-out"
                   onClick={toggleWrite}

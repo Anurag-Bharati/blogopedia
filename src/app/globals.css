@@ -30,6 +30,7 @@
 
 body {
   background-color: var(--background);
+  color: var(--foreground);
 }
 
 .nice-scroll-bar::-webkit-scrollbar {
