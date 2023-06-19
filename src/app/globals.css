@@ -3,25 +3,44 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --foreground: #111;
+  --background: #fff;
+  --accent-col: #2dcdff;
+  --yellow-col: #e6e635;
+  --green-col: #a3e635;
+  --cyan-col: #35e6ab;
+  --sky-col: #27f3f3;
+  --pink-col: #eb2fab;
+  --bg-col-light: #eee;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --foreground: #fff;
+    --background: #000;
+    --accent-col: #2dcdff;
+    --yellow-col: #e6e635;
+    --green-col: #a3e635;
+    --cyan-col: #35e6ab;
+    --sky-col: #27f3f3;
+    --pink-col: #eb2fab;
+    --bg-col-light: #222;
   }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background-color: var(--background);
+}
+
+.nice-scroll-bar::-webkit-scrollbar {
+  width: 0.25rem !important;
+}
+
+.nice-scroll-bar::-webkit-scrollbar-track {
+  background: var(--bg-col-light);
+}
+
+.nice-scroll-bar::-webkit-scrollbar-thumb {
+  background: var(--accent-col) !important;
+  border-radius: 10px !important;
 }
