@@ -1,0 +1,13 @@
+{
+  "categories": [
+    { "name": "Software Design", "description": "Test" },
+    { "name": "Backend", "description": "Test" },
+    { "name": "Frontend", "description": "Test" },
+    { "name": "DevOps", "description": "Test" },
+    { "name": "Art and Craft", "description": "Test" },
+    { "name": "Languages", "description": "Test" },
+    { "name": "Marketing", "description": "Test" },
+    { "name": "Trading", "description": "Test" },
+    { "name": "Business", "description": "Test" }
+  ]
+}
