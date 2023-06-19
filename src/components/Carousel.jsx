@@ -1,7 +1,9 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, A11y } from "swiper";
+import { Autoplay, A11y, Keyboard } from "swiper";
 import "swiper/css";
+import "swiper/css/keyboard";
+import "swiper/css/a11y";
 import Image from "next/image";
 
 const Carousel = () => {
@@ -18,10 +20,15 @@ const Carousel = () => {
       <Swiper
         slidesPerView={1}
         centeredSlides={true}
-        modules={[Autoplay, A11y]}
+        modules={[Autoplay, A11y, Keyboard]}
+        keyboard={{ enabled: true, onlyInViewport: false }}
         autoplay={{
           delay: 2000,
           disableOnInteraction: false,
+        }}
+        a11y={{
+          prevSlideMessage: "Previous slide",
+          nextSlideMessage: "Next slide",
         }}
         spaceBetween={30}
         loop={true}
@@ -31,8 +38,8 @@ const Carousel = () => {
           <Image
             src="/assets/images/hero-background.jpg"
             className="object-cover w-full h-full pointer-events-none"
-            height={2000}
-            width={3000}
+            height={1000}
+            width={1500}
             alt="..."
           />
         </SwiperSlide>
@@ -40,8 +47,8 @@ const Carousel = () => {
           <Image
             src="/assets/images/hero-background.jpg"
             className="object-cover w-full h-full pointer-events-none"
-            height={2000}
-            width={3000}
+            height={1000}
+            width={1500}
             alt="..."
           />
         </SwiperSlide>
@@ -49,8 +56,8 @@ const Carousel = () => {
           <Image
             src="/assets/images/hero-background.jpg"
             className="object-cover w-full h-full pointer-events-none"
-            height={2000}
-            width={3000}
+            height={1000}
+            width={1500}
             alt="..."
           />
         </SwiperSlide>
@@ -58,8 +65,8 @@ const Carousel = () => {
           <Image
             src="/assets/images/hero-background.jpg"
             className="object-cover w-full h-full pointer-events-none"
-            height={2000}
-            width={3000}
+            height={1000}
+            width={1500}
             alt="..."
           />
         </SwiperSlide>
@@ -67,8 +74,8 @@ const Carousel = () => {
           <Image
             src="/assets/images/hero-background.jpg"
             className="object-cover w-full h-full pointer-events-none"
-            height={2000}
-            width={3000}
+            height={1000}
+            width={1500}
             alt="..."
           />
         </SwiperSlide>

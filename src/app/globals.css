@@ -33,6 +33,19 @@ body {
   color: var(--foreground);
 }
 
+body::-webkit-scrollbar {
+  width: 0.25rem !important;
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--bg-col-light);
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--accent-col) !important;
+  border-radius: 10px !important;
+}
+
 .nice-scroll-bar::-webkit-scrollbar {
   width: 0.25rem !important;
 }

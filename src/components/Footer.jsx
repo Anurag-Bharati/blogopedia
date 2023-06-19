@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="sm:col-span-2">
           <Link href="/" aria-label="Go home" title="Blogopedia" className="inline-flex items-center">
             <Image src="/assets/svgs/logo-full.svg" width={100} height={40} alt="blogopedia" />
-            <span class="ml-2 mt-2 text-xs tracking-wide text-[#999] uppercase">By Anurag</span>
+            <span className="ml-2 mt-2 text-xs tracking-wide text-[#999] uppercase">By Anurag</span>
           </Link>
           <div className="mt-6 lg:max-w-sm">
             <p className="text-sm text-[#999]">

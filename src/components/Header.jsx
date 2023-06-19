@@ -122,7 +122,7 @@ const Header = () => {
               <Link href="/#" className="z-10 mr-2 text-white">
                 <p className=" text-sm md:text-base">Home</p>
               </Link>
-              <Link href="/#" className="z-10 mr-2 text-white">
+              <Link href="/#featured" className="z-10 mr-2 text-white">
                 <p className=" text-sm md:text-base">Featured</p>
               </Link>
 
