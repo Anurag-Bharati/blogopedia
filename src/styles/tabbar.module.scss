@@ -1,0 +1,58 @@
+.selector {
+  display: flex;
+  height: min(3em, 10vw);
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  margin-bottom: 20px;
+  .link {
+    position: absolute;
+    background: rgb(0, 0, 0);
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(153, 153, 153, 1) 25%, rgba(153, 153, 153, 1) 75%, rgba(0, 212, 255, 0) 100%);
+    height: 2px;
+    width: 50%;
+    z-index: -1;
+  }
+  .selection {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+    margin-left: -1px;
+    background-clip: border-box;
+    transform: scale3d(1, 1, 1);
+    border: 2px solid #999;
+    border-radius: 10px !important;
+    transition: 0.15s ease-in-out background-color;
+    max-width: 200px;
+    background-color: #000000;
+    .selected {
+      background-color: rgb(255, 255, 255, 0.05) !important;
+    }
+  }
+  .selection:hover {
+    background-color: #222 !important;
+  }
+  .selection:first-child {
+    margin-left: 0;
+    border-radius: 3px 0 0 3px;
+  }
+  .selection:last-child {
+    border-radius: 0 3px 3px 0;
+  }
+  .width-per-item {
+    width: auto;
+    .selection {
+      min-width: 135px;
+      max-width: 135px;
+      width: 135px;
+    }
+  }
+}
