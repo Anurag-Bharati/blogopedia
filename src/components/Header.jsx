@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { BiChevronDown, BiPlus, BiRightArrowAlt, BiSearch, BiUser, BiX } from "react-icons/bi";
 import { GrArticle, GrCopy } from "react-icons/gr";
-import data from "../config/data/articles.data.json";
+import data from "../config/data/categories.data.json";
 import Image from "next/image";
 
 const Header = () => {

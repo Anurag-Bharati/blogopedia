@@ -1,6 +1,8 @@
 import React from "react";
 import Tabbar from "./TabBar";
 import ContentCard from "./ContentCard";
+import articles from "@/config/data/articles.data.json";
+import blogs from "@/config/data/blogs.data.json";
 
 const Featured = () => {
   return (
@@ -13,8 +15,9 @@ const Featured = () => {
           experiences and expertise.
         </p>
       </div>
-      <ContentCard />
-      <ContentCard />
+      {blogs.blogs.map((e, i) => (
+        <ContentCard varient="blog" key={i} data={e} />
+      ))}
     </section>
   );
 };
