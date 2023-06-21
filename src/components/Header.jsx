@@ -196,9 +196,9 @@ const Header = () => {
                   </div>
                 </span>
 
-                <span className="inline-flex justify-center items-center cursor-pointer z-10">
+                <Link href="/auth" className="inline-flex justify-center items-center cursor-pointer z-10">
                   <BiUser className="h-6 w-6" />
-                </span>
+                </Link>
               </div>
             </div>
           </div>

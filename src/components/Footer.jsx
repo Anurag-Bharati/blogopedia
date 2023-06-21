@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 import { GrFacebook, GrLinkedin, GrTwitter } from "react-icons/gr";
+import React from "react";
 
 const Footer = () => {
   return (
