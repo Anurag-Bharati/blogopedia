@@ -7,6 +7,7 @@ import "swiper/css/a11y";
 import Image from "next/image";
 
 const Carousel = () => {
+  const initSwitch = (e) => console.log(e.target.offsetParent.id);
   return (
     <div className="">
       <Image
@@ -36,6 +37,14 @@ const Carousel = () => {
         breakpoints={{ 684: { slidesPerView: 2 } }}
       >
         <SwiperSlide>
+          <div className="absolute w-full h-full z-10 flex flex-col justify-center items-center px-4" id="1">
+            <h1 className="text-2xl bg-[#ffffff55] rounded-full px-3 py-2 max-w-full truncate mt-5 cursor-pointer" onClick={initSwitch}>
+              Introduction to Software Design Patterns
+            </h1>
+            <p className="truncate text-sm  bg-[#ffffff55] rounded-b-full  px-5 pb-3 inline-block cursor-pointer" onClick={initSwitch}>
+              By John Doe • an hour ago
+            </p>
+          </div>
           <Image
             src="/assets/images/hero-background.jpg"
             className="object-cover w-full h-full pointer-events-none -hue-rotate-15"
@@ -45,6 +54,14 @@ const Carousel = () => {
           />
         </SwiperSlide>
         <SwiperSlide>
+          <div className="absolute w-full h-full z-10 flex flex-col justify-center items-center px-4" id="2">
+            <h1 className="text-2xl bg-[#ffffff55] rounded-full px-3 py-2 max-w-full truncate mt-5 cursor-pointer" onClick={initSwitch}>
+              Introduction to Software Design Patterns
+            </h1>
+            <p className="truncate text-sm  bg-[#ffffff55] rounded-b-full  px-5 pb-3 inline-block cursor-pointer" onClick={initSwitch}>
+              By John Doe • an hour ago
+            </p>
+          </div>
           <Image
             src="/assets/images/hero-background.jpg"
             className="object-cover w-full h-full pointer-events-none hue-rotate-0"
@@ -54,6 +71,14 @@ const Carousel = () => {
           />
         </SwiperSlide>
         <SwiperSlide>
+          <div className="absolute w-full h-full z-10 flex flex-col justify-center items-center px-4" id="3">
+            <h1 className="text-2xl bg-[#ffffff55] rounded-full px-3 py-2 max-w-full truncate mt-5 cursor-pointer" onClick={initSwitch}>
+              Introduction to Software Design Patterns
+            </h1>
+            <p className="truncate text-sm  bg-[#ffffff55] rounded-b-full  px-5 pb-3 inline-block cursor-pointer" onClick={initSwitch}>
+              By John Doe • an hour ago
+            </p>
+          </div>
           <Image
             src="/assets/images/hero-background.jpg"
             className="object-cover w-full h-full pointer-events-none hue-rotate-15"
@@ -63,6 +88,14 @@ const Carousel = () => {
           />
         </SwiperSlide>
         <SwiperSlide>
+          <div className="absolute w-full h-full z-10 flex flex-col justify-center items-center px-4" id="4">
+            <h1 className="text-2xl bg-[#ffffff55] rounded-full px-3 py-2 max-w-full truncate mt-5 cursor-pointer" onClick={initSwitch}>
+              Introduction to Software Design Patterns
+            </h1>
+            <p className="truncate text-sm  bg-[#ffffff55] rounded-b-full  px-5 pb-3 inline-block cursor-pointer" onClick={initSwitch}>
+              By John Doe • an hour ago
+            </p>
+          </div>
           <Image
             src="/assets/images/hero-background.jpg"
             className="object-cover w-full h-full pointer-events-none hue-rotate-30"
@@ -72,6 +105,14 @@ const Carousel = () => {
           />
         </SwiperSlide>
         <SwiperSlide>
+          <div className="absolute w-full h-full z-10 flex flex-col justify-center items-center px-4" id="5">
+            <h1 className="text-2xl bg-[#ffffff55] rounded-full px-3 py-2 max-w-full truncate mt-5 cursor-pointer" onClick={initSwitch}>
+              Introduction to Software Design Patterns
+            </h1>
+            <p className="truncate text-sm  bg-[#ffffff55] rounded-b-full  px-5 pb-3 inline-block cursor-pointer" onClick={initSwitch}>
+              By John Doe • an hour ago
+            </p>
+          </div>
           <Image
             src="/assets/images/hero-background.jpg"
             className="object-cover w-full h-full pointer-events-none hue-rotate-60"

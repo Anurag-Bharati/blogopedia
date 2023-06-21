@@ -1,37 +1,30 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { BiChevronDown, BiPlus, BiRightArrowAlt, BiSearch, BiUser, BiX } from "react-icons/bi";
+import { BiChevronDown, BiPlus, BiRightArrowAlt, BiUser } from "react-icons/bi";
 import { GrArticle, GrCopy } from "react-icons/gr";
-import data from "../config/data/categories.data.json";
 import Image from "next/image";
+import data from "../config/data/categories.data.json";
+import NiceSearchBar from "./NiceSearchBar";
 
 const Header = () => {
   const [showBooks, setShowCourses] = useState(false);
   const [write, setWrite] = useState(false);
   const toggleWrite = () => setWrite(!write);
   var hideDelay;
+
   const showAllBooks = () => {
     clearTimeout(hideDelay);
     setShowCourses(true);
   };
+
   const toggleShowBooks = () => setShowCourses(!showBooks);
   const hideAllBooks = () => (hideDelay = setTimeout(() => setShowCourses(false), 300));
+
   const handleSwitch = (slug) => {
     setShowCourses(false);
   };
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showResults, setShowResults] = useState(false);
 
-  const handleSearchChange = (event) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-    setShowResults(query !== "");
-  };
-  const handleClearSearch = () => {
-    setSearchQuery("");
-  };
-  const filteredStuff = data.categories.filter((x) => x.name.toLowerCase().includes(searchQuery.toLowerCase()));
   return (
     <header id="header" className="relative w-full mt-[90px]">
       {/* Wrapper for top-header */}
@@ -125,48 +118,7 @@ const Header = () => {
               <Link href="/#featured" className="z-10 mr-2 text-white">
                 <p className=" text-sm md:text-base">Featured</p>
               </Link>
-
-              <form className="relative hidden md:block flex-grow z-10 max-w-sm ml-auto">
-                <div className="relative">
-                  <input
-                    className="block w-full px-3 py-2 pl-10 pr-28 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate"
-                    placeholder="What you want to read?"
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    required
-                  />
-                  <div className="absolute p-2 right-0 top-0 bottom-0 mr-4">
-                    <div className="border border-[#999] text-[#999] w-full h-full flex flex-col justify-center px-2 text-sm rounded-md">
-                      CTRL + K
-                    </div>
-                  </div>
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 ">
-                    {searchQuery !== "" ? (
-                      <BiX className="text-xl text-[#999] cursor-pointer z10" onClick={handleClearSearch} />
-                    ) : (
-                      <BiSearch className="text-xl text-[#999]" />
-                    )}
-                  </div>
-                </div>
-                {searchQuery !== "" && (
-                  <div className="absolute top-32 w-full left-0 md:left-auto  md:top-16 md:w-[350px]  border border-[#222]">
-                    <div className="max-w-7xl text-sm md:text-base mx-auto bg-black">
-                      <ul className="py-2">
-                        {filteredStuff.length > 0 ? (
-                          filteredStuff.map((book) => (
-                            <li key={book.name} className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white">
-                              {book.name}
-                            </li>
-                          ))
-                        ) : (
-                          <li className="px-4 py-2 text-white">No item found</li>
-                        )}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </form>
-
+              <NiceSearchBar className="relative hidden md:block flex-grow z-10 max-w-sm ml-auto" />
               <div className="flex gap-4 justify-evenly ml-6 text-white">
                 <span
                   className="relative inline-flex gap-2 justify-center items-center border-2 rounded-full px-3 py-1 cursor-pointer hover:bg-white hover:text-black transition duration-300 ease-in-out"
@@ -176,7 +128,7 @@ const Header = () => {
                   <BiPlus className="h-5 w-5" />
 
                   <div
-                    className={`absolute top-32 w-fit left-0 md:left-auto md:top-14  border border-[#222] whitespace-nowrap bg-black z-[-1] transition ease-in-out duration-300 ${
+                    className={`absolute top-12 w-fit left-0 md:left-auto md:top-14  border border-[#222] whitespace-nowrap bg-black z-[-1] transition ease-in-out duration-300 ${
                       write ? "translate-y-0" : "-translate-y-full"
                     }`}
                     onMouseLeave={() => setWrite(false)}
@@ -204,28 +156,8 @@ const Header = () => {
           </div>
         </div>
       </div>
-      <div className="flex gap-4 mt-[90px]  px-4 pb-2  max-w-md  md:hidden mx-auto">
-        <form className="flex-1">
-          <div className="relative">
-            <input
-              className="block w-full px-3 py-2 pl-10 pr-28 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate"
-              placeholder="What you want to read?"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              required
-            />
-            <div className="absolute p-2 right-0 top-0 bottom-0 mr-4">
-              <div className="border border-[#999] text-[#999] w-full h-full flex flex-col justify-center px-2 text-sm rounded-md">CTRL + K</div>
-            </div>
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 ">
-              {searchQuery !== "" ? (
-                <BiX className="text-xl text-[#999] cursor-pointer z10" onClick={handleClearSearch} />
-              ) : (
-                <BiSearch className="text-xl text-[#999]" />
-              )}
-            </div>
-          </div>
-        </form>
+      <div className="flex gap-4 mt-[90px]  px-4 pb-4  max-w-md  md:hidden mx-auto">
+        <NiceSearchBar className="flex-1" />
       </div>
       {/* RESPONSIVE */}
       <div
