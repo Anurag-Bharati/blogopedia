@@ -1,15 +1,20 @@
 "use client";
+import { userState } from "@/atoms/userAtom";
+import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { BiChevronLeft } from "react-icons/bi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { GrGoogle } from "react-icons/gr";
+import { useRecoilState } from "recoil";
 
 const Auth = () => {
+  const [user, setUser] = useRecoilState(userState);
   const [isLogin, setIsLogin] = useState(true);
   const [showPass, setShowPass] = useState(false);
   const toggleShowPass = () => setShowPass(!showPass);
+  const handleGoogleSignIn = async () => signIn("google", { callbackUrl: "http://localhost:3000" });
   return (
     <section className="relative isolate text-white overflow-hidden p-4 min-h-screen mx-auto md:px-10 max-w-7xl lg:px-8 scroll-mt-32 flex flex-col justify-center items-center">
       <div className="mb-6 sm:mb-0 sm:h-fit sm:absolute left-[5%] top-20 z-10 flex justify-center items-center gap-2">
@@ -55,47 +60,49 @@ const Auth = () => {
             {isLogin ? (
               <form className="sm:min-w-[270px]">
                 <div className="mb-4">
-                  <label for="username" />
+                  <label htmlFor="username" />
                   <input
                     className="block w-full p-4 pl-6 pr-6 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate"
                     placeholder="Email or Username"
                     id="username"
                     type="text"
                     required
+                    autoComplete="email"
                   />
                 </div>
                 <div className="relative mb-4">
-                  <label for="password" />
+                  <label htmlFor="password" />
                   <input
                     className="block w-full p-4 pl-6 pr-6 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate"
                     placeholder="Password"
                     id="password"
                     type={showPass ? "text" : "password"}
-                    minlength="6"
+                    minLength="6"
                     required
+                    autoComplete="current-password"
                   />
                   <span className="absolute right-4 top-5 cursor-pointer" onClick={toggleShowPass}>
                     {showPass ? <FaEyeSlash /> : <FaEye />}
                   </span>
                 </div>
-                <div class="flex items-center justify-between mb-6 mx-1">
-                  <div class="flex items-start mr-4">
-                    <div class="flex items-center h-5">
+                <div className="flex items-center justify-between mb-6 mx-1">
+                  <div className="flex items-start mr-4">
+                    <div className="flex items-center h-5">
                       <input
                         id="remember"
                         aria-describedby="remember"
                         type="checkbox"
-                        class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
+                        className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
                         required=""
                       />
                     </div>
-                    <div class="ml-3 text-sm">
-                      <label for="remember" class="text-gray-500 dark:text-gray-300">
+                    <div className="ml-3 text-sm">
+                      <label htmlFor="remember" className="text-gray-500 dark:text-gray-300">
                         Remember me
                       </label>
                     </div>
                   </div>
-                  <a href="#" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">
+                  <a href="#" className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">
                     Forgot password?
                   </a>
                 </div>
@@ -112,34 +119,37 @@ const Auth = () => {
             ) : (
               <form className="sm:min-w-[300px]">
                 <div className="mb-4">
-                  <label for="username" />
+                  <label htmlFor="username" />
                   <input
                     className="block w-full p-4 pl-6 pr-6 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate"
                     placeholder="Full Name"
                     id="username"
                     type="text"
                     required
+                    autoComplete="username"
                   />
                 </div>
                 <div className="mb-4">
-                  <label for="email" />
+                  <label htmlFor="email" />
                   <input
                     className="block w-full p-4 pl-6 pr-6 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate"
                     placeholder="Email"
-                    id="username"
+                    id="email"
                     type="text"
                     required
+                    autoComplete="username"
                   />
                 </div>
                 <div className="relative mb-4">
-                  <label for="password" />
+                  <label htmlFor="email" />
                   <input
                     className="block w-full p-4 pl-6 pr-6 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate"
                     placeholder="Password"
                     id="password"
                     type={showPass ? "text" : "password"}
-                    minlength="6"
+                    minLength="6"
                     required
+                    autoComplete="current-password"
                   />
                   <span className="absolute right-4 top-5 cursor-pointer" onClick={toggleShowPass}>
                     {showPass ? <FaEyeSlash /> : <FaEye />}
@@ -163,11 +173,11 @@ const Auth = () => {
             </div>
             <button
               type="button"
-              class="w-full block bg-black border-2 hover:bg-white focus:text-black focus:bg-white text-white hover:text-black font-semibold rounded-lg px-4 py-3 border-white transition duration-300"
+              className="w-full block bg-black border-2 hover:bg-white focus:text-black focus:bg-white text-white hover:text-black font-semibold rounded-lg px-4 py-3 border-white transition duration-300"
             >
-              <div class="flex items-center justify-center">
+              <div className="flex items-center justify-center" onClick={handleGoogleSignIn}>
                 <GrGoogle />
-                <span class="ml-4">Log in with Google</span>
+                <span className="ml-4">Log in with Google</span>
               </div>
             </button>
           </div>

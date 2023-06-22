@@ -1,18 +1,19 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { BiChevronDown, BiPlus, BiRightArrowAlt, BiUser } from "react-icons/bi";
+import { BiChevronDown, BiPlus, BiRightArrowAlt, BiUser, BiUserCheck } from "react-icons/bi";
 import { GrArticle, GrCopy } from "react-icons/gr";
 import Image from "next/image";
 import data from "../config/data/categories.data.json";
 import NiceSearchBar from "./NiceSearchBar";
+import { signOut, useSession } from "next-auth/react";
 
 const Header = () => {
+  const { data: session, status } = useSession();
   const [showBooks, setShowCourses] = useState(false);
   const [write, setWrite] = useState(false);
   const toggleWrite = () => setWrite(!write);
   var hideDelay;
-
   const showAllBooks = () => {
     clearTimeout(hideDelay);
     setShowCourses(true);
@@ -148,9 +149,15 @@ const Header = () => {
                   </div>
                 </span>
 
-                <Link href="/auth" className="inline-flex justify-center items-center cursor-pointer z-10">
-                  <BiUser className="h-6 w-6" />
-                </Link>
+                {status === "authenticated" ? (
+                  <div className="inline-flex justify-center items-center cursor-pointer z-10 w-8 h-8 rounded-full overflow-hidden" onClick={signOut}>
+                    <img src={session.user.image} height={128} width={128} className="object-cover w-full h-full " />
+                  </div>
+                ) : (
+                  <Link href="/auth" className="inline-flex justify-center items-center cursor-pointer z-10">
+                    <BiUser className="h-6 w-6" />
+                  </Link>
+                )}
               </div>
             </div>
           </div>

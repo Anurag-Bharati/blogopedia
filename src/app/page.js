@@ -1,3 +1,4 @@
+"use client";
 import Featured from "@/components/Featured";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";

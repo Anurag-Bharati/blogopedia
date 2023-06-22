@@ -36,8 +36,8 @@ const NiceSearchBar = ({ className }) => {
     searchInputRef.current.addEventListener("blur", handleSearchBarBlur);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      searchInputRef.current.removeEventListener("focus", handleSearchBarFocus);
-      searchInputRef.current.removeEventListener("blur", handleSearchBarBlur);
+      searchInputRef.current?.removeEventListener("focus", handleSearchBarFocus);
+      searchInputRef.current?.removeEventListener("blur", handleSearchBarBlur);
     };
   }, [isSearchBarFocused]);
 
