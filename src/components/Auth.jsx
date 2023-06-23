@@ -4,17 +4,26 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { BiChevronLeft } from "react-icons/bi";
+import { BiChevronLeft, BiLoader } from "react-icons/bi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { GrGoogle } from "react-icons/gr";
 import { useRecoilState } from "recoil";
 
 const Auth = () => {
+  const [state, setState] = useState({ loading: false });
+
   const [user, setUser] = useRecoilState(userState);
   const [isLogin, setIsLogin] = useState(true);
   const [showPass, setShowPass] = useState(false);
+
   const toggleShowPass = () => setShowPass(!showPass);
-  const handleGoogleSignIn = async () => signIn("google", { callbackUrl: "http://localhost:3000" });
+
+  const handleGoogleSignIn = async () => {
+    setState({ loading: true });
+    await signIn("google", { callbackUrl: "http://localhost:3000" });
+    setState({ loading: false });
+  };
+
   return (
     <section className="relative isolate text-white overflow-hidden p-4 min-h-screen mx-auto md:px-10 max-w-7xl lg:px-8 scroll-mt-32 flex flex-col justify-center items-center">
       <div className="mb-6 sm:mb-0 sm:h-fit sm:absolute left-[5%] top-20 z-10 flex justify-center items-center gap-2">
@@ -174,10 +183,11 @@ const Auth = () => {
             <button
               type="button"
               className="w-full block bg-black border-2 hover:bg-white focus:text-black focus:bg-white text-white hover:text-black font-semibold rounded-lg px-4 py-3 border-white transition duration-300"
+              onClick={handleGoogleSignIn}
             >
-              <div className="flex items-center justify-center" onClick={handleGoogleSignIn}>
-                <GrGoogle />
-                <span className="ml-4">Log in with Google</span>
+              <div className="flex items-center justify-center">
+                {state.loading ? <BiLoader className="animate-spin h-5 w-5" /> : <GrGoogle className="h-4 w-4" />}
+                <span className="ml-4 ">Log in with Google</span>
               </div>
             </button>
           </div>
