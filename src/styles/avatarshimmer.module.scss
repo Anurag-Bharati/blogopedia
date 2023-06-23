@@ -1,0 +1,36 @@
+.outerring {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+}
+
+.innerring {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  border: 2px solid #fff;
+  animation: breathe 4s linear infinite;
+}
+
+@keyframes breathe {
+  0% {
+    box-shadow: 0;
+  }
+  25% {
+    box-shadow: inset 0 0 20px 1px #ffffff99;
+  }
+  50% {
+    box-shadow: inset 0 0 120px 1px #ffffff99;
+  }
+  75% {
+    box-shadow: inset 0 0 20px 1px #ffffff99;
+  }
+  100% {
+    box-shadow: 0;
+  }
+}

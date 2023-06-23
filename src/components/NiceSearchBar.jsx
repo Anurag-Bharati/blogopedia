@@ -16,6 +16,7 @@ const NiceSearchBar = ({ className }) => {
   };
   const handleClearSearch = () => setSearchQuery("");
   useEffect(() => {
+    let searchInputRefValue = null;
     const handleKeyDown = (event) => {
       if (event.ctrlKey && event.key === "k") {
         event.preventDefault();
@@ -32,12 +33,13 @@ const NiceSearchBar = ({ className }) => {
     const handleSearchBarFocus = () => setIsSearchBarFocused(true);
     const handleSearchBarBlur = () => setIsSearchBarFocused(false);
     document.addEventListener("keydown", handleKeyDown);
+    if (searchInputRef.current) searchInputRefValue = searchInputRef.current;
     searchInputRef.current.addEventListener("focus", handleSearchBarFocus);
     searchInputRef.current.addEventListener("blur", handleSearchBarBlur);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      searchInputRef.current?.removeEventListener("focus", handleSearchBarFocus);
-      searchInputRef.current?.removeEventListener("blur", handleSearchBarBlur);
+      searchInputRefValue?.removeEventListener("focus", handleSearchBarFocus);
+      searchInputRefValue?.removeEventListener("blur", handleSearchBarBlur);
     };
   }, [isSearchBarFocused]);
 
