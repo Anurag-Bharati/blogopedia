@@ -1,22 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+
 import { BiChevronDown, BiPlus, BiRightArrowAlt, BiUser } from "react-icons/bi";
 import { GrArticle, GrCopy } from "react-icons/gr";
-import Image from "next/image";
-import data from "../config/data/categories.data.json";
+
 import NiceSearchBar from "./NiceSearchBar";
-import { useSession } from "next-auth/react";
 import UserOptionsBar from "./UserOptionsBar";
 import AvatarShimmer from "./AvatarShimmer";
 
+import data from "../config/data/categories.data.json";
+
+import { firestore } from "../config/firebase/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+
 const Header = () => {
+  const router = useRouter();
   const { data: session, status } = useSession();
+
   const [showBooks, setShowCourses] = useState(false);
   const [write, setWrite] = useState(false);
   const toggleWrite = () => setWrite(!write);
+
   var hideDelay;
+
   const showAllBooks = () => {
     clearTimeout(hideDelay);
     setShowCourses(true);
@@ -24,10 +35,32 @@ const Header = () => {
 
   const toggleShowBooks = () => setShowCourses(!showBooks);
   const hideAllBooks = () => (hideDelay = setTimeout(() => setShowCourses(false), 300));
+  const handleSwitch = (slug) => setShowCourses(false);
 
-  const handleSwitch = (slug) => {
-    setShowCourses(false);
+  const createDocument = async () => {
+    if (status !== "authenticated") return;
+    const blogsCollection = collection(firestore, "blogs");
+
+    try {
+      const addedDocRef = await addDoc(blogsCollection, {
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        author: session.user,
+        status: "draft",
+        likes: 0,
+        views: 0,
+        tags: [],
+        references: [],
+        toc: [],
+        coverImage: "",
+        readTime: null,
+      });
+      router.push(`/editor/${addedDocRef.id}`);
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   };
+
   return (
     <header id="header" className="relative w-full mt-[90px]">
       {/* Wrapper for top-header */}
@@ -46,9 +79,9 @@ const Header = () => {
                 onClick={toggleShowBooks}
               >
                 <li className="relative">
-                  <a className="flex items-center gap-2 px-2 py-2 text-md text-white pointer-events-none" type="button">
+                  <a className="flex items-center gap-2 px-2 py-2 text-md  pointer-events-none" type="button">
                     <p className=" text-sm md:text-base">Topics</p>
-                    <BiChevronDown className={`text-2xl text-white transition ${showBooks ? "rotate-90" : "rotate-0"}`} />
+                    <BiChevronDown className={`text-2xl  transition ${showBooks ? "rotate-90" : "rotate-0"}`} />
                   </a>
                   <div
                     className={`absolute z-[-1] pt-6 transition duration-500 ease-out hidden md:block cursor-default ${
@@ -57,7 +90,7 @@ const Header = () => {
                   >
                     <div className="relative w-auto  bg-black border-[1px] border-[#222]">
                       <div className="flex w-auto">
-                        <ul className="py-2 text-md md:text-sm text-white max-h-72 overflow-y-scroll nice-scroll-bar w-80">
+                        <ul className="py-2 text-md md:text-sm  max-h-72 overflow-y-scroll nice-scroll-bar w-80">
                           {data.categories.map((e, i) => (
                             <li key={`data:${i}:desktop`}>
                               <a href="#" className="block px-4 py-4 md:py-2 hover:bg-[#222]">
@@ -72,12 +105,12 @@ const Header = () => {
                             className="inline-flex flex-row py-2 opacity-100 mx-3 px-3 items-center hover:text-white"
                             type="button"
                           >
-                            <p className="text-md uppercase text-white pointer-events-none">Show More</p>
+                            <p className="text-md uppercase  pointer-events-none">Show More</p>
                             <BiRightArrowAlt className="text-md ml-1 font-light pointer-events-none" />
                           </Link>
                         </ul>
                         <div className="flex flex-col p-4 gap-4">
-                          <h2 className="text-white">Filters</h2>
+                          <h2>Filters</h2>
                           <div className="inline-flex flex-wrap text-md md:text-sm text-gray-700 p-0 gap-4 w-96 h-fit whitespace-nowrap justify-start">
                             <a href="#" className="py-1 bg-zinc-100 rounded-full px-2 hover:brightness-75">
                               Popular
@@ -93,7 +126,7 @@ const Header = () => {
                               Featured
                             </a>
                           </div>
-                          <h2 className="text-white">Hastags</h2>
+                          <h2>Hastags</h2>
                           <div className="inline-flex flex-wrap text-md md:text-sm text-white p-0 gap-4 w-96 h-fit whitespace-nowrap justify-start">
                             <a href="#" className="py-1 border-2 border-[#2DCDFF] rounded-full px-2  hover:bg-[#2DCDFF] hover:text-[#111]">
                               #technology
@@ -120,14 +153,14 @@ const Header = () => {
                   </div>
                 </li>
               </ul>
-              <Link passHref={true} href="/#" className="z-10 mr-2 text-white">
+              <Link passHref={true} href="/#" className="z-10 mr-2">
                 <p className=" text-sm md:text-base">Home</p>
               </Link>
-              <Link passHref={true} href="/#featured" className="z-10 mr-2 text-white">
+              <Link passHref={true} href="/#featured" className="z-10 mr-2 ">
                 <p className=" text-sm md:text-base">Featured</p>
               </Link>
               <NiceSearchBar className="relative hidden md:block flex-grow z-10 max-w-sm ml-auto" />
-              <div className="flex gap-4 justify-evenly ml-6 text-white">
+              <div className="flex gap-4 justify-evenly ml-6 ">
                 <span
                   className="relative inline-flex gap-2 justify-center items-center border-2 rounded-full px-3 py-1 cursor-pointer hover:bg-white hover:text-black transition duration-300 ease-in-out"
                   onClick={toggleWrite}
@@ -143,13 +176,17 @@ const Header = () => {
                   >
                     <div className="max-w-7xl text-sm md:text-base">
                       <ul className="py-2">
-                        <li className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2">
-                          <GrCopy className="invert" />
-                          <p>Create a Blog</p>
+                        <li>
+                          <button onClick={createDocument} className="px-4 py-2 hover:bg-[#222] cursor-pointer text-auto flex items-center gap-2">
+                            <GrCopy className="invert" />
+                            <p>Create a Blog</p>
+                          </button>
                         </li>
-                        <li className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2">
-                          <GrArticle className="invert" />
-                          <p>Write an Article</p>
+                        <li>
+                          <button onClick={createDocument} className="px-4 py-2 hover:bg-[#222] cursor-pointer text-auto flex items-center gap-2">
+                            <GrArticle className="invert" />
+                            <p>Write an Article</p>
+                          </button>
                         </li>
                       </ul>
                     </div>

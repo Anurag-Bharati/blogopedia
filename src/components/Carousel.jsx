@@ -9,15 +9,21 @@ import Image from "next/image";
 const Carousel = () => {
   const initSwitch = (e) => console.log(e.target.offsetParent.id);
   return (
-    <div className="">
+    <div className="color-auto">
       <Image
         src="/assets/svgs/wave-curve-invert.svg"
         height={100}
         width={100}
-        className="absolute -top-1 w-full z-10 pointer-events-none"
+        className="absolute -top-1 w-full z-10 pointer-events-none fill-auto"
         alt="..."
       />
-      <Image src="/assets/svgs/wave-curve.svg" height={100} width={100} className="absolute -bottom-1  w-full z-10 pointer-events-none" alt="..." />
+      <Image
+        src="/assets/svgs/wave-curve.svg"
+        height={100}
+        width={100}
+        className="absolute -bottom-1  w-full z-10 pointer-events-none fill-auto"
+        alt="..."
+      />
       <Swiper
         speed={3000}
         slidesPerView={1}
@@ -35,6 +41,7 @@ const Carousel = () => {
         spaceBetween={30}
         loop={true}
         breakpoints={{ 684: { slidesPerView: 2 } }}
+        className=""
       >
         <SwiperSlide>
           <div className="absolute w-full h-full z-10 flex flex-col justify-center items-center px-4" id="1">

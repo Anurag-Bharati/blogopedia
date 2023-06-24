@@ -15,13 +15,13 @@ const UserOptionsBar = ({ session }) => {
     const loadDelay = setTimeout(() => setLoading(false), 3000);
     return () => clearTimeout(loadDelay);
   }, [open, loading]);
-  console.log(session);
+
   return (
     <div className="inline-flex justify-center items-center cursor-pointer w-8 h-8 rounded-full overflow-hidden ">
       <Image src={session.user.image} height={64} width={64} className="object-cover w-full h-full z-10" onClick={toggleOpen} alt="avatar" />
       <div
         className={`absolute overflow-hidden top-12 w-fit left-0 md:left-auto md:top-24 shadow-xl rounded-lg  border border-[#222] bg-[#111] whitespace-nowrap  z-[-1] transition ease-in-out duration-300 ${
-          open ? "opacity-100 scale-100" : "opacity-0 scale-90"
+          open ? "opacity-100 scale-100" : "opacity-0 scale-90 pointer-events-none"
         }`}
         onMouseLeave={() => setOpen(false)}
       >
