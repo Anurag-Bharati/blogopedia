@@ -1,12 +1,15 @@
 "use client";
+
 import Link from "next/link";
-import { useState } from "react";
-import { BiChevronDown, BiPlus, BiRightArrowAlt, BiUser, BiUserCheck } from "react-icons/bi";
+import { useEffect, useState } from "react";
+import { BiChevronDown, BiPlus, BiRightArrowAlt, BiUser } from "react-icons/bi";
 import { GrArticle, GrCopy } from "react-icons/gr";
 import Image from "next/image";
 import data from "../config/data/categories.data.json";
 import NiceSearchBar from "./NiceSearchBar";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import UserOptionsBar from "./UserOptionsBar";
+import AvatarShimmer from "./AvatarShimmer";
 
 const Header = () => {
   const { data: session, status } = useSession();
@@ -25,13 +28,12 @@ const Header = () => {
   const handleSwitch = (slug) => {
     setShowCourses(false);
   };
-
   return (
     <header id="header" className="relative w-full mt-[90px]">
       {/* Wrapper for top-header */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-black border-b-[1px] border-[#222]">
         <div className="flex py-3 md:py-5 px-6 md:px-8 mx-auto max-w-[1280px]">
-          <Link href="/" scroll={false} className="inline-block py-1 whitespace-nowrap mr-2 w-40 text-center my-auto z-10">
+          <Link passHref={true} href="/" scroll={false} className="inline-block py-1 whitespace-nowrap mr-2 w-40 text-center my-auto z-10">
             <Image src="/assets/svgs/logo-full.svg" width={120} height={120} alt="Blogopedia logo; varient: full" />
           </Link>
           <div className="flex basis-full justify-center">
@@ -64,7 +66,12 @@ const Header = () => {
                             </li>
                           ))}
                           <div className="border-b-[1px] border-[#222] h-px my-2"></div>
-                          <Link href="/#" className="inline-flex flex-row py-2 opacity-100 mx-3 px-3 items-center hover:text-white" type="button">
+                          <Link
+                            passHref={true}
+                            href="/#"
+                            className="inline-flex flex-row py-2 opacity-100 mx-3 px-3 items-center hover:text-white"
+                            type="button"
+                          >
                             <p className="text-md uppercase text-white pointer-events-none">Show More</p>
                             <BiRightArrowAlt className="text-md ml-1 font-light pointer-events-none" />
                           </Link>
@@ -113,10 +120,10 @@ const Header = () => {
                   </div>
                 </li>
               </ul>
-              <Link href="/#" className="z-10 mr-2 text-white">
+              <Link passHref={true} href="/#" className="z-10 mr-2 text-white">
                 <p className=" text-sm md:text-base">Home</p>
               </Link>
-              <Link href="/#featured" className="z-10 mr-2 text-white">
+              <Link passHref={true} href="/#featured" className="z-10 mr-2 text-white">
                 <p className=" text-sm md:text-base">Featured</p>
               </Link>
               <NiceSearchBar className="relative hidden md:block flex-grow z-10 max-w-sm ml-auto" />
@@ -148,17 +155,18 @@ const Header = () => {
                     </div>
                   </div>
                 </span>
-
-                {status === "authenticated" ? (
-                  <div className="inline-flex justify-center items-center cursor-pointer z-10 w-8 h-8 rounded-full overflow-hidden" onClick={signOut}>
-                    <img src={session.user.image} height={128} width={128} className="object-cover w-full h-full " />
-                  </div>
-                ) : (
-                  <Link href="/auth" className="inline-flex justify-center items-center cursor-pointer z-10">
-                    <BiUser className="h-6 w-6" />
-                  </Link>
-                )}
               </div>
+              {status === "loading" && <AvatarShimmer className="h-8 w-8 cursor-wait" />}
+              {status === "authenticated" && <UserOptionsBar session={session} />}
+              {status === "unauthenticated" && (
+                <Link
+                  passHref={true}
+                  href="/auth"
+                  className="relative h-8 w-8 inline-flex justify-center items-center cursor-pointer z-10  border-2 border-white rounded-full"
+                >
+                  <BiUser className="h-6 w-6" />
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -189,6 +197,7 @@ const Header = () => {
           <div className="border-b-[1px] border-[#eaeaea] h-px my-2"></div>
           <div className="py-2">
             <Link
+              passHref={true}
               href="/all-courses"
               className="flex flex-row py-2 opacity-100 mx-3 px-3 items-center rounded-md primary-button-ring hover:text-white"
               type="button"
