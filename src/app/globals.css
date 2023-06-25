@@ -83,3 +83,13 @@ body::-webkit-scrollbar-thumb {
   background: var(--accent-col) !important;
   border-radius: 10px !important;
 }
+.override-scroll-bar-all::-webkit-scrollbar {
+  width: 0.25rem !important;
+}
+.override-scroll-bar-all::-webkit-scrollbar-track {
+  background: transparent;
+}
+.override-scroll-bar-all::-webkit-scrollbar-thumb {
+  background: #ffffff55 !important;
+  border-radius: 10px !important;
+}
