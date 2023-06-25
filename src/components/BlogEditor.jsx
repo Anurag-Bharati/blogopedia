@@ -11,18 +11,24 @@ import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 import { firestore } from "@/config/firebase/firebase";
 import { useDocumentOnce } from "react-firebase-hooks/firestore";
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+
 import { doc } from "firebase/firestore";
 import EditorLeftAside from "./EditorLeftAside";
 import EditorRightAside from "./EditorRightAside";
 
+const storage = getStorage();
+
 const BlogEditor = ({ id }) => {
+  const [image, setImage] = useState(null);
+
   // Check if user is logged in; redirect to login page if not
   const { data: session, status } = useSession({ required: true });
+
   const [headers, setHeaders] = useState([]);
-  const [hastags, setHastags] = useState([]);
+  const [hashtags, setHashtags] = useState([]);
   // Fetch blog data from firestore using id with react-firebase-hooks
   const [snapshot, loading, error] = useDocumentOnce(doc(firestore, "blogs", id));
-
   // Log the blog data
   useEffect(() => console.log(snapshot?.data()), [snapshot]);
 
@@ -54,7 +60,28 @@ const BlogEditor = ({ id }) => {
           }
         }
       });
-    setHastags(tempHastags);
+    setHashtags(tempHastags);
+  };
+  // upload image to firebase storage
+
+  const uploadImage = async (file) => {
+    const storageRef = ref(storage, `blogs/${session.user.uid}/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      (error) => {
+        console.log(error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          console.log(downloadURL);
+        });
+      }
+    );
   };
 
   useEffect(() => {
@@ -70,7 +97,7 @@ const BlogEditor = ({ id }) => {
   return (
     <main className="w-full h-screen text-black ">
       <div className="w-full h-full flex">
-        <EditorLeftAside headers={headers} scrollIntoView={scrollIntoView} />
+        <EditorLeftAside headers={headers} scrollIntoView={scrollIntoView} setImage={setImage} />
         <div className="bg-gray-200 grow flex flex-col h-full">
           <Editor
             editorState={editorState}
@@ -96,7 +123,7 @@ const BlogEditor = ({ id }) => {
             }}
           />
         </div>
-        <EditorRightAside />
+        <EditorRightAside session={session} />
       </div>
     </main>
   );

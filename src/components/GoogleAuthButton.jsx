@@ -3,11 +3,11 @@ import { useState } from "react";
 import { BiLoader } from "react-icons/bi";
 import { GrGoogle } from "react-icons/gr";
 
-const GoogleAuthButton = () => {
+const GoogleAuthButton = ({ callbackUrl }) => {
   const [state, setState] = useState({ loading: false });
   const handleGoogleSignIn = async () => {
     setState({ loading: true });
-    await signIn("google", { callbackUrl: "http://localhost:3000", redirect: false });
+    await signIn("google", { callbackUrl: callbackUrl || "http://localhost:3000", redirect: false });
     setState({ loading: false });
   };
   return (

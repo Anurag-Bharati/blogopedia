@@ -5,7 +5,7 @@ import { BiCog, BiLogOutCircle } from "react-icons/bi";
 import InfiniteLinearProgressBar from "./InfiniteLinearProgressBar";
 import Image from "next/image";
 
-const UserOptionsBar = ({ session }) => {
+const UserOptionsBar = ({ session, cardClassName = "", redirectToHome = true }) => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const toggleOpen = () => setOpen(!open);
@@ -16,11 +16,23 @@ const UserOptionsBar = ({ session }) => {
     return () => clearTimeout(loadDelay);
   }, [open, loading]);
 
+  const handleSignOut = async () => {
+    if (redirectToHome) await signOut({ redirect: true, callbackUrl: "http://localhost:3000" });
+    else await signOut({ redirect: false });
+  };
+
   return (
-    <div className="inline-flex justify-center items-center cursor-pointer w-8 h-8 rounded-full overflow-hidden ">
-      <Image src={session.user.image} height={64} width={64} className="object-cover w-full h-full z-10" onClick={toggleOpen} alt="avatar" />
+    <div className="inline-flex flex-shrink-0 justify-center items-center cursor-pointer w-8 h-8 rounded-full overflow-hidden ">
+      <Image
+        src={session?.user?.image}
+        height={64}
+        width={64}
+        className="object-cover aspect-square w-full h-full z-10"
+        onClick={toggleOpen}
+        alt="avatar"
+      />
       <div
-        className={`absolute overflow-hidden top-12 w-fit left-0 md:left-auto md:top-24 shadow-xl rounded-lg  border border-[#222] bg-[#111] whitespace-nowrap  z-[-1] transition ease-in-out duration-300 ${
+        className={`${cardClassName} absolute overflow-hidden top-12 w-fit right-3 md:left-auto md:top-24 shadow-xl rounded-lg  border border-[#222] bg-[#111] whitespace-nowrap  transition ease-in-out duration-300 ${
           open ? "opacity-100 scale-100" : "opacity-0 scale-90 pointer-events-none"
         }`}
         onMouseLeave={() => setOpen(false)}
@@ -29,10 +41,10 @@ const UserOptionsBar = ({ session }) => {
           <ul className="py-0">
             <li className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2 border-b-2 border-[#222]">
               <div className="flex items-center gap-2">
-                <Image src={session.user.image} height={64} width={64} className="object-cover w-10 h-10 z-10 rounded-full" alt="avatar" />
+                <Image src={session?.user?.image} height={64} width={64} className="object-cover w-10 h-10 z-10 rounded-full" alt="avatar" />
                 <div>
-                  <p className="text-sm">{session.user.name}</p>
-                  <p className="text-xs">{session.user.email}</p>
+                  <p className="text-sm">{session?.user?.name}</p>
+                  <p className="text-xs">{session?.user?.email}</p>
                 </div>
               </div>
             </li>
@@ -43,7 +55,7 @@ const UserOptionsBar = ({ session }) => {
               <BiCog className="w-5 h-5" />
               <p>Settings</p>
             </li>
-            <li className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2" onClick={signOut}>
+            <li className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2" onClick={handleSignOut}>
               <BiLogOutCircle className="w-5 h-5" />
               <p>Sign out</p>
             </li>

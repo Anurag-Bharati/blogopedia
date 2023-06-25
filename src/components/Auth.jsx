@@ -6,12 +6,15 @@ import { useEffect, useRef, useState } from "react";
 import { BiChevronLeft } from "react-icons/bi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRecoilState } from "recoil";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { firebaseApp } from "@/config/firebase/firebase";
 import GoogleAuthButton from "./GoogleAuthButton";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 const Auth = () => {
+  const searchParams = useSearchParams();
+
   const [state, setState] = useState({ loading: false, error: null });
   const auth = getAuth(firebaseApp);
 
@@ -27,7 +30,7 @@ const Auth = () => {
     e.preventDefault();
     setState({ loading: true, error: null });
     var { email, password } = document.forms[0];
-    signIn("credentials", { email: email.value, password: password.value, callbackUrl: "http://localhost:300" });
+    signIn("credentials", { email: email.value, password: password.value, callbackUrl: searchParams.get("callbackUrl") || "/" });
   };
   // add user session to next-auth
 
@@ -45,7 +48,7 @@ const Auth = () => {
   };
 
   useEffect(() => {
-    console.log(state.error);
+    if (state.error) console.log(state.error);
   }, [state.error]);
 
   useEffect(() => {
@@ -215,7 +218,7 @@ const Auth = () => {
               <div className="text-center px-5">or</div>
               <div className="h-[0.125rem] w-full bg-[#999]"></div>
             </div>
-            <GoogleAuthButton />
+            <GoogleAuthButton callbackUrl={searchParams.get("callbackUrl")} />
           </div>
           {state.error && <span>{state.error}</span>}
         </div>
