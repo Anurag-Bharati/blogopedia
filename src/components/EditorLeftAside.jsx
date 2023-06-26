@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { BiImageAdd } from "react-icons/bi";
-const EditorLeftAside = ({ headers, scrollIntoView, setImage }) => {
+const EditorLeftAside = ({ headers, scrollIntoView, setImage, saving }) => {
   const [cover, setCover] = useState(null);
   const filePickerRef = useRef(null);
   const addImageToPost = (e) => {
@@ -19,7 +19,12 @@ const EditorLeftAside = ({ headers, scrollIntoView, setImage }) => {
     setImage(null);
   };
   return (
-    <aside className="bg-[#111] w-[250px] h-full overflow-hidden">
+    <aside className="relative bg-[#000] w-[250px] h-full overflow-hidden">
+      <div
+        className={`absolute w-full h-full bg-[#000000ee] z-30 transition duration-300 ${
+          saving ? "opacity-100" : "opacity-0 pointer-events-none"
+        } flex flex-col justify-center items-center gap-2`}
+      ></div>
       <div className="flex flex-col h-full ">
         <div className="relative h-48 w-full bg-[#ffffff22] overflow-hidden">
           {cover ? (
