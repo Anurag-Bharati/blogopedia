@@ -111,9 +111,7 @@ const BlogEditor = ({ id }) => {
         console.log(`Upload is ${progress}% done`);
         setUploadPercentage(progress);
       },
-      (error) => {
-        console.log(error);
-      },
+      (error) => console.log(error),
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setDownloadURL(downloadURL);

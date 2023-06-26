@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 
-import { BiChevronDown, BiPlus, BiRightArrowAlt, BiUser } from "react-icons/bi";
-import { GrArticle, GrCopy } from "react-icons/gr";
+import { BiChevronDown, BiLoader, BiPlus, BiRightArrowAlt, BiUser } from "react-icons/bi";
 
 import NiceSearchBar from "./NiceSearchBar";
 import UserOptionsBar from "./UserOptionsBar";
@@ -21,10 +20,11 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 const Header = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
-
+  const [state, setState] = useState({ loading: false });
   const [showBooks, setShowCourses] = useState(false);
   const [write, setWrite] = useState(false);
   const toggleWrite = () => setWrite(!write);
+  const [formError, setFormError] = useState(null);
 
   var hideDelay;
 
@@ -37,8 +37,13 @@ const Header = () => {
   const hideAllBooks = () => (hideDelay = setTimeout(() => setShowCourses(false), 300));
   const handleSwitch = (slug) => setShowCourses(false);
 
-  const createDocument = async () => {
+  const createDocument = async (e) => {
+    e.preventDefault();
+    if (state.loading) return;
+    var title = e.target.title.value;
+    if (!title || title.trim() === "") return setFormError("Title cannot be empty");
     if (status !== "authenticated") return;
+    setState({ loading: true });
     const blogsCollection = collection(firestore, "blogs");
 
     try {
@@ -46,6 +51,7 @@ const Header = () => {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         author: session.user,
+        title: title.trim(),
         status: "draft",
         likes: 0,
         views: 0,
@@ -58,6 +64,8 @@ const Header = () => {
       router.push(`/editor/${addedDocRef.id}`);
     } catch (error) {
       console.error("Error adding document: ", error);
+    } finally {
+      setState({ loading: false });
     }
   };
 
@@ -167,31 +175,43 @@ const Header = () => {
                 >
                   <p className="">Write</p>
                   <BiPlus className="h-5 w-5" />
-
-                  <div
-                    className={`absolute top-12 w-fit left-0 md:left-auto md:top-14  border border-[#222] whitespace-nowrap bg-black z-[-1] transition ease-in-out duration-300 ${
-                      write ? "translate-y-0" : "-translate-y-full"
-                    }`}
-                    onMouseLeave={() => setWrite(false)}
-                  >
-                    <div className="max-w-7xl text-sm md:text-base">
-                      <ul className="py-2">
-                        <li>
-                          <button onClick={createDocument} className="px-4 py-2 hover:bg-[#222] cursor-pointer text-auto flex items-center gap-2">
-                            <GrCopy className="invert" />
-                            <p>Create a Blog</p>
-                          </button>
-                        </li>
-                        <li>
-                          <button onClick={createDocument} className="px-4 py-2 hover:bg-[#222] cursor-pointer text-auto flex items-center gap-2">
-                            <GrArticle className="invert" />
-                            <p>Write an Article</p>
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
                 </span>
+                <div
+                  className={`absolute top-12 w-fit left-0 md:left-auto md:top-[90px]  border rounded-b-xl border-[#222] whitespace-nowrap bg-black z-[-1] transition ease-in-out duration-300 ${
+                    write ? "translate-y-0" : "-translate-y-full"
+                  }`}
+                  // onMouseLeave={() => setWrite(false)}
+                >
+                  <div className="max-w-7xl text-sm md:text-base">
+                    <form className="px-3 pt-2 pb-3 flex flex-col gap-1 w-min" onSubmit={createDocument}>
+                      <input
+                        disabled={state.loading}
+                        className={`block min-w-[180px] w-full p-2 pl-3 pr-3 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate ${
+                          formError ? "border-2 border-red-400" : "border-0"
+                        }  }`}
+                        placeholder="Title of your blog"
+                        id="title"
+                        type="text"
+                        onFocus={() => setFormError(null)}
+                      />
+                      {formError && <p className="text-red-400 text-xs px-2 pb-1">{formError}</p>}
+                      <button
+                        type="submit"
+                        disabled={state.loading}
+                        className="text-white text-md bg-cyan-700 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-cyan-300  rounded-lg  w-full py-1.5 text-center dark:bg-cyan-400 dark:hover:bg-cyan-500 dark:focus:ring-cyan-800 font-medium mt-1"
+                      >
+                        {state.loading ? (
+                          <div className="flex justify-center items-center gap-2">
+                            <BiLoader className="animate-spin h-5 w-5" />
+                            Please wait
+                          </div>
+                        ) : (
+                          "Create Blog"
+                        )}
+                      </button>
+                    </form>
+                  </div>
+                </div>
               </div>
               {status === "loading" && <AvatarShimmer className="h-8 w-8 cursor-wait" />}
               {status === "authenticated" && <UserOptionsBar session={session} />}

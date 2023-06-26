@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { BiImageAdd } from "react-icons/bi";
+import { BiHeading, BiImageAdd } from "react-icons/bi";
 const EditorLeftAside = ({ headers, scrollIntoView, setImage, saving }) => {
   const [cover, setCover] = useState(null);
   const filePickerRef = useRef(null);
@@ -46,36 +46,44 @@ const EditorLeftAside = ({ headers, scrollIntoView, setImage, saving }) => {
         </div>
         <div className="overflow-y-scroll override-scroll-bar-all h-full">
           <h1 className=" p-4 pt-6 text-lg text-white">Table of Contents</h1>
-          <div className="flex flex-col px-4 text-sm gap-2 ">
-            {headers.map((h, i) => {
-              if (h.text.trim() === "") return;
-              if (h.type === "header-one")
-                return (
-                  <a onClick={() => scrollIntoView(h.key)} className="line-clamp-2  text-gray-400 hover:text-white cursor-pointer" key={i}>
-                    {h.text}
-                  </a>
-                );
-              else if (h.type === "header-two")
-                return (
-                  <a
-                    onClick={() => scrollIntoView(h.key)}
-                    className="line-clamp-1 truncate  text-gray-400 hover:text-white ml-2 cursor-pointer"
-                    key={i}
-                  >
-                    {h.text}
-                  </a>
-                );
-              else if (h.type === "header-three")
-                return (
-                  <a
-                    onClick={() => scrollIntoView(h.key)}
-                    className="line-clamp-1 truncate  text-gray-400 hover:text-white ml-4 cursor-pointer"
-                    key={i}
-                  >
-                    {h.text}
-                  </a>
-                );
-            })}
+          <div className="flex flex-col px-4 text-sm gap-2">
+            {headers.length === 0 && (
+              <div className="h-32 bg-[#111] flex flex-col justify-center items-center rounded-md">
+                <BiHeading className="w-6 h-6 text-gray-400" />
+                <span className="text-gray-400">No headers found</span>
+                <span className="text-gray-400">Try adding H1</span>
+              </div>
+            )}
+            {headers &&
+              headers.map((h, i) => {
+                if (h.text.trim() === "") return;
+                if (h.type === "header-one")
+                  return (
+                    <a onClick={() => scrollIntoView(h.key)} className="line-clamp-2  text-gray-400 hover:text-white cursor-pointer" key={i}>
+                      {h.text}
+                    </a>
+                  );
+                else if (h.type === "header-two")
+                  return (
+                    <a
+                      onClick={() => scrollIntoView(h.key)}
+                      className="line-clamp-1 truncate  text-gray-400 hover:text-white ml-2 cursor-pointer"
+                      key={i}
+                    >
+                      {h.text}
+                    </a>
+                  );
+                else if (h.type === "header-three")
+                  return (
+                    <a
+                      onClick={() => scrollIntoView(h.key)}
+                      className="line-clamp-1 truncate  text-gray-400 hover:text-white ml-4 cursor-pointer"
+                      key={i}
+                    >
+                      {h.text}
+                    </a>
+                  );
+              })}
           </div>
         </div>
       </div>

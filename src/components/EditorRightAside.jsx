@@ -1,4 +1,4 @@
-import { BiSearch } from "react-icons/bi";
+import { BiSearch, BiSolidPurchaseTag } from "react-icons/bi";
 import UserOptionsBar from "./UserOptionsBar";
 
 const EditorRightAside = ({ tags = [], session, handleSave, saving }) => {
@@ -27,8 +27,20 @@ const EditorRightAside = ({ tags = [], session, handleSave, saving }) => {
         </header>
         <div className="p-4">
           <p className="text-white">Tags</p>
-          <div className="p-4 rounded-xl  h-[200px] bg-[#222] mt-2 ">
+          <div className="p-4 rounded-md  h-[200px] bg-[#111] mt-2 ">
             <div className="overflow-y-scroll h-full w-full truncate override-scroll-bar-all flex gap-2  flex-wrap items-start content-start">
+              {tags.length === 0 && (
+                <div className=" bg-[#111] flex flex-col h-full w-full justify-center items-center rounded-md text-sm">
+                  <BiSolidPurchaseTag className="w-6 h-6 text-gray-400" />
+                  <span className="text-gray-400">No tags found</span>
+                  <span className="text-gray-400">
+                    Try adding{" "}
+                    <span className="border-2 border-gray-400 rounded-full px-1 text-xs hover:bg-gray-400 hover:text-[#000] text-gray-400 cursor-pointer">
+                      #new
+                    </span>
+                  </span>
+                </div>
+              )}
               {tags.map((tag, i) => (
                 <a
                   href="#"
