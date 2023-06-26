@@ -37,7 +37,7 @@ const EditorLeftAside = ({ headers, scrollIntoView, setImage, saving }) => {
             </div>
           ) : (
             <div className=" h-full w-full p-7">
-              <div className="relative border-4 h-full w-full rounded-xl border-dashed flex">
+              <div className="relative border-2  h-full w-full rounded-xl border-dashed flex">
                 <input type="file" className=" absolute h-full w-full opacity-0  cursor-pointer" ref={filePickerRef} onChange={addImageToPost} />
                 <BiImageAdd className="w-8 h-8 text-[#ffffff99] m-auto" />
               </div>

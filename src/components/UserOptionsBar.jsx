@@ -33,7 +33,7 @@ const UserOptionsBar = ({ session, cardClassName = "", redirectToHome = true }) 
       />
       <div
         className={`${cardClassName} absolute overflow-hidden top-12 w-fit right-3 md:left-auto md:top-24 shadow-xl rounded-lg  border border-[#222] bg-[#111] whitespace-nowrap  transition ease-in-out duration-300 ${
-          open ? "opacity-100 scale-100" : "opacity-0 scale-90 pointer-events-none"
+          open ? "opacity-100 scale-95" : "opacity-0 scale-90 pointer-events-none"
         }`}
         onMouseLeave={() => setOpen(false)}
       >

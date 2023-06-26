@@ -13,14 +13,17 @@ import { firestore } from "@/config/firebase/firebase";
 import { useDocumentOnce } from "react-firebase-hooks/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 
-import { doc } from "firebase/firestore";
+import { deleteDoc, doc } from "firebase/firestore";
 import EditorLeftAside from "./EditorLeftAside";
 import EditorRightAside from "./EditorRightAside";
 import Image from "next/image";
+import EditorTopNav from "./EditorTopNav";
+import { useRouter } from "next/navigation";
 
 const storage = getStorage();
 
 const BlogEditor = ({ id }) => {
+  const router = useRouter();
   // Check if user is logged in; redirect to login page if not
   const { data: session, status } = useSession({ required: true });
 
@@ -39,6 +42,13 @@ const BlogEditor = ({ id }) => {
   // DraftJS Stuffs
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const onEditorStateChange = (editorState) => setEditorState(editorState);
+
+  // delete document and redirect to home page
+  const discardDocument = () => {
+    const docRef = doc(firestore, "blogs", id);
+    deleteDoc(docRef);
+    router.push("/");
+  };
 
   useEffect(() => {
     if (!setDownloadURL) return;
@@ -59,8 +69,7 @@ const BlogEditor = ({ id }) => {
     setSaving(false);
   }, [downloadURL, editorState, hashtags, image]);
 
-  // Save blog to firestore
-
+  // main function to save the blog
   const handleSave = (type = "draft") => {
     setSaving(true);
     if (image) uploadImage(image);
@@ -75,28 +84,6 @@ const BlogEditor = ({ id }) => {
   const scrollIntoView = (e) =>
     document.querySelector(`[data-offset-key="${e}-0-0"]`).scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const pullHastags = () => {
-    const tempHastags = [];
-    editorState
-      .getCurrentContent()
-      .getBlocksAsArray()
-      .forEach((block) => {
-        if (block.getType() === "unstyled") {
-          const text = block.getText();
-          // hashtag regex
-          const ht = text.match(/#[a-z]+/gi);
-          // clean the ht
-          if (ht) {
-            ht.forEach((h) => {
-              const clean = h.replace("#", "");
-              if (!tempHastags.includes(clean)) tempHastags.push(clean);
-            });
-          }
-        }
-      });
-    setHashtags(tempHastags);
-  };
   // upload image to firebase storage
   const uploadImage = async (file) => {
     if (!session) return;
@@ -127,9 +114,29 @@ const BlogEditor = ({ id }) => {
     rawContentState.blocks.forEach((block) => {
       if (block.type === "header-one" || block.type === "header-two" || block.type === "header-three") tempHeaders.push(block);
     });
+    const pullHastags = () => {
+      const tempHastags = [];
+      editorState
+        .getCurrentContent()
+        .getBlocksAsArray()
+        .forEach((block) => {
+          if (block.getType() === "unstyled") {
+            const text = block.getText();
+            // hashtag regex
+            const ht = text.match(/#[a-z]+/gi);
+            // clean the ht
+            if (ht) {
+              ht.forEach((h) => {
+                const clean = h.replace("#", "");
+                if (!tempHastags.includes(clean)) tempHastags.push(clean);
+              });
+            }
+          }
+        });
+      setHashtags(tempHastags);
+    };
     setHeaders(tempHeaders);
     pullHastags();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editorState]);
 
   return (
@@ -137,6 +144,7 @@ const BlogEditor = ({ id }) => {
       <div className="w-full h-full flex">
         <EditorLeftAside headers={headers} scrollIntoView={scrollIntoView} setImage={setImage} saving={saving} />
         <div className="relative bg-gray-200 grow flex flex-col h-full">
+          {/* Overlay */}
           <div
             className={`absolute w-full h-full bg-[#000000ee] z-30 transition duration-300 ${
               saving ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -150,6 +158,8 @@ const BlogEditor = ({ id }) => {
             </div>
             <p className="text-white text-sm">Hang tight! Your work is being saved</p>
           </div>
+          {/* Top Navigation */}
+          <EditorTopNav discardDocument={discardDocument} />
           <Editor
             editorState={editorState}
             wrapperClassName="max-w-3xl mx-auto h-full w-full  flex flex-col [&>.rdw-editor-main]:flex-1 !overflow-hidden"

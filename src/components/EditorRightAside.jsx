@@ -1,4 +1,4 @@
-import { BiSearch, BiSolidPurchaseTag } from "react-icons/bi";
+import { BiSearch, BiSolidTagX } from "react-icons/bi";
 import UserOptionsBar from "./UserOptionsBar";
 
 const EditorRightAside = ({ tags = [], session, handleSave, saving }) => {
@@ -31,7 +31,7 @@ const EditorRightAside = ({ tags = [], session, handleSave, saving }) => {
             <div className="overflow-y-scroll h-full w-full truncate override-scroll-bar-all flex gap-2  flex-wrap items-start content-start">
               {tags.length === 0 && (
                 <div className=" bg-[#111] flex flex-col h-full w-full justify-center items-center rounded-md text-sm">
-                  <BiSolidPurchaseTag className="w-6 h-6 text-gray-400" />
+                  <BiSolidTagX className="w-6 h-6 text-gray-400" />
                   <span className="text-gray-400">No tags found</span>
                   <span className="text-gray-400">
                     Try adding{" "}
