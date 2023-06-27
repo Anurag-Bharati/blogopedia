@@ -1,7 +1,8 @@
-import { BiSearch, BiSolidTagX } from "react-icons/bi";
+import { BiCheck, BiDetail, BiInfoCircle, BiSearch, BiSolidTagX } from "react-icons/bi";
+import { CiSaveDown1 } from "react-icons/ci";
 import UserOptionsBar from "./UserOptionsBar";
 
-const EditorRightAside = ({ tags = [], session, handleSave, saving }) => {
+const EditorRightAside = ({ tags = [], session, handleSave, saving, blogMeta }) => {
   return (
     <aside className="relative bg-[#000] w-[250px] h-full overflow-hidden">
       <div
@@ -25,12 +26,12 @@ const EditorRightAside = ({ tags = [], session, handleSave, saving }) => {
           </form>
           <UserOptionsBar session={session} cardClassName="!top-16 !md:top-16" />
         </header>
-        <div className="p-4">
+        <div className="px-4">
           <p className="text-white">Tags</p>
-          <div className="p-4 rounded-md  h-[200px] bg-[#111] mt-2 ">
+          <div className="p-2 rounded-md  h-[150px] bg-[#111] mt-2 ">
             <div className="overflow-y-scroll h-full w-full truncate override-scroll-bar-all flex gap-2  flex-wrap items-start content-start">
               {tags.length === 0 && (
-                <div className=" bg-[#111] flex flex-col h-full w-full justify-center items-center rounded-md text-sm">
+                <div className=" bg-[#111] flex flex-col h-full w-full justify-center items-center rounded-md text-sm gap-1">
                   <BiSolidTagX className="w-6 h-6 text-gray-400" />
                   <span className="text-gray-400">No tags found</span>
                   <span className="text-gray-400">
@@ -44,7 +45,7 @@ const EditorRightAside = ({ tags = [], session, handleSave, saving }) => {
               {tags.map((tag, i) => (
                 <a
                   href="#"
-                  className="py-1 border-2 border-[#a3e635] rounded-full px-2 text-sm hover:bg-[#a3e635] hover:text-[#000] text-white"
+                  className="py-0.5 border-2 border-[#a3e635] rounded-full px-1 text-xs hover:bg-[#a3e635] hover:text-[#000] text-white"
                   key={i}
                 >
                   #{tag}
@@ -53,12 +54,32 @@ const EditorRightAside = ({ tags = [], session, handleSave, saving }) => {
             </div>
           </div>
         </div>
+        <div className="p-4">
+          <p className="text-white">Metadata</p>
+          <div className="p-2 rounded-md  h-[180px] bg-[#111] mt-2 ">
+            <div className="overflow-y-scroll h-full w-full truncate override-scroll-bar-all flex  flex-col items-start content-start text-white text-sm">
+              <p className="">
+                Title: <span className="text-gray-200">{blogMeta?.title}</span>
+              </p>
+              <p className="pb-1">
+                Readtime: <span className="text-gray-200">{blogMeta?.readTime} min</span>
+              </p>
 
+              <p className="">
+                File name: <span className="text-gray-200">{blogMeta?.filename}</span>
+              </p>
+              <p className="">
+                {/* // change created to Date */}
+                Created: <span className="text-gray-200">{blogMeta?.createdAt}</span>
+              </p>
+            </div>
+          </div>
+        </div>
         <div className="flex flex-col gap-3 px-4 grow justify-end mb-6 text-sm">
           <button className="border-2 border-gray-200 hover:bg-gray-200 hover:text-black text-white  py-2 px-4 rounded" onClick={() => handleSave()}>
             Save as Draft
           </button>
-          <button className="bg-[#a3e635] hover:bg-[#6b9c1c] text-white  py-2 px-4 rounded" onClick={() => handleSave("publish")}>
+          <button className="bg-[#a3e635] hover:bg-[#6b9c1c] text-white  py-2 px-4 rounded" onClick={() => handleSave("published")}>
             Publish Now
           </button>
         </div>

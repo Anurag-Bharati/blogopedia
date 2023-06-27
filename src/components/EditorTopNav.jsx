@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { BiCheck, BiDetail, BiInfoCircle } from "react-icons/bi";
+import { CiCircleCheck, CiCircleInfo, CiSaveDown1, CiStickyNote } from "react-icons/ci";
 
-const EditorTopNav = ({ discardDocument }) => {
+const EditorTopNav = ({ discardDocument, blogMeta }) => {
   const [confirmDiscardDialog, setConfirmDiscardDialog] = useState(false);
 
   return (
@@ -39,7 +41,42 @@ const EditorTopNav = ({ discardDocument }) => {
             &gt;<span className="pointer-events-none text-cyan-400">Editor</span>
           </div>
         </div>
-        <div className="flex justify-end items-center text-sm">
+        <div className="flex justify-end items-center text-sm gap-2">
+          {/* blog status indicator */}
+          {blogMeta?.blogStatus === "published" && (
+            <span
+              className="flex gap-1 justify-center items-center  px-1 py-px border border-green-400 rounded-full text-xs cursor-pointer "
+              title={`Status: ${blogMeta?.blogStatus}`}
+            >
+              <CiCircleCheck className="w-3 h-3 text-green-400" />
+              <p className="text-green-400 uppercase ">{blogMeta?.blogStatus}</p>
+            </span>
+          )}
+          {blogMeta?.blogStatus === "draft" && (
+            <span
+              className="flex gap-1 justify-center items-center  px-1 py-px border border-cyan-400 rounded-full text-xs cursor-pointer "
+              title={`Status: ${blogMeta?.blogStatus}`}
+            >
+              <CiStickyNote className="w-3 h-3 text-cyan-400" />
+              <p className="text-cyan-400 uppercase ">{blogMeta?.blogStatus}</p>
+            </span>
+          )}
+          {blogMeta?.blogStatus === "unsaved" && (
+            <span
+              className="flex gap-1 justify-center items-center  px-1 py-px border  rounded-full text-xs cursor-pointer "
+              title={`Status: ${blogMeta?.blogStatus}`}
+            >
+              <CiCircleInfo className="w-3 h-3 text-black" />
+              <p className=" uppercase ">{blogMeta?.blogStatus}</p>
+            </span>
+          )}
+          <span
+            className="flex gap-1 justify-center items-center  px-1 py-px border  rounded-full text-xs cursor-pointer "
+            title={`Doc Saved ${blogMeta?.updatedAt}`}
+          >
+            <CiSaveDown1 className="w-3 h-3 text-black" />
+            <p className=" uppercase ">{blogMeta?.updatedAt}</p>
+          </span>
           <div
             className="m-2 px-2 py-0.5  cursor-pointer bg-red-400 rounded-full hover:bg-red-500 hover:text-white"
             onClick={() => setConfirmDiscardDialog(true)}

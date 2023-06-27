@@ -17,10 +17,15 @@ import { deleteDoc, doc } from "firebase/firestore";
 import EditorLeftAside from "./EditorLeftAside";
 import EditorRightAside from "./EditorRightAside";
 import Image from "next/image";
+import moment from "moment";
 import EditorTopNav from "./EditorTopNav";
 import { useRouter } from "next/navigation";
 
+import { calculateReadTime, findTitle, pullHastags, pullHeaders, scrollIntoView } from "@/utils/blog.utils";
+
 const storage = getStorage();
+const dummyImageUrl =
+  "https://firebasestorage.googleapis.com/v0/b/blogopedia-dev.appspot.com/o/blogs%2Fplaceholder.png?alt=media&token=a897007f-e8d1-487e-b318-7d31c6ae7a04";
 
 const BlogEditor = ({ id }) => {
   const router = useRouter();
@@ -33,11 +38,33 @@ const BlogEditor = ({ id }) => {
   const [hashtags, setHashtags] = useState([]);
   const [saving, setSaving] = useState(false);
   const [downloadURL, setDownloadURL] = useState(null);
+  const [blogStatus, setBlogStatus] = useState("unsaved");
 
   // Fetch blog data from firestore using id with react-firebase-hooks
   const [snapshot, loading, error] = useDocumentOnce(doc(firestore, "blogs", id));
+
+  const [blogMeta, setBlogMeta] = useState({
+    title: "loading...",
+    readTime: 0,
+    status: "unsaved",
+    createdAt: "loading...",
+    updatedAt: "loading...",
+    filename: "loading...",
+  });
+
   // Log the blog data
-  useEffect(() => console.log(snapshot?.data()), [snapshot]);
+  useEffect(() => {
+    if (!snapshot) return;
+    setBlogMeta((prev) => ({
+      ...prev,
+      title: findTitle(snapshot?.data()?.content) ?? snapshot?.data()?.fileName ?? "Untitled",
+      status: snapshot?.data()?.status ?? blogStatus ?? "unsaved",
+      // convert int timestamp (createdAt) to  time ago
+      createdAt: moment(snapshot?.data()?.createdAt.seconds * 1000).fromNow(),
+      updatedAt: moment(snapshot?.data()?.createdAt.seconds * 1000).fromNow(),
+      filename: snapshot?.data()?.fileName ?? "Untitled",
+    }));
+  }, [blogStatus, snapshot]);
 
   // DraftJS Stuffs
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
@@ -50,42 +77,42 @@ const BlogEditor = ({ id }) => {
     router.push("/");
   };
 
+  // listen for changes in downloadURL and upload the blog to firestore
   useEffect(() => {
-    if (!setDownloadURL) return;
-    const uploadToFiresotre = (type = "draft") => {
+    console.log("Inside useEffect of setDownloadURL");
+    if (!setDownloadURL) return setSaving(false);
+    const uploadToFiresotre = () => {
       const rawContentState = convertToRaw(editorState.getCurrentContent());
-      // to firebase
       const data = {
-        title: rawContentState.blocks[0].text,
+        title: findTitle(rawContentState) ?? snapshot?.data()?.fileName ?? "Untitled",
         content: rawContentState,
         hashtags: hashtags,
-        type: type,
+        cover: downloadURL,
+        toc: headers,
+        readTime: calculateReadTime(rawContentState),
+        status: blogStatus,
       };
-      if (image) data.cover = image;
       console.log(data);
     };
     uploadToFiresotre();
     setUploadPercentage(0);
     setSaving(false);
-  }, [downloadURL, editorState, hashtags, image]);
+    setDownloadURL(() => null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [downloadURL]);
 
   // main function to save the blog
-  const handleSave = (type = "draft") => {
+  const handleSave = (status = "draft") => {
+    setBlogStatus(status);
     setSaving(true);
+    console.log("saving...");
     if (image) uploadImage(image);
-    else {
-      setSaving(false);
-      setUploadPercentage(0);
-    }
-
-    // const docRef = doc(firestore, "blogs", id);
+    else setDownloadURL(dummyImageUrl);
   };
-
-  const scrollIntoView = (e) =>
-    document.querySelector(`[data-offset-key="${e}-0-0"]`).scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
 
   // upload image to firebase storage
   const uploadImage = async (file) => {
+    console.log("Inside uploadImage");
     if (!session) return;
     const ts = Date.now().toString();
     const path = session?.user?.email?.split("@")[0];
@@ -109,35 +136,19 @@ const BlogEditor = ({ id }) => {
 
   useEffect(() => {
     const rawContentState = convertToRaw(editorState.getCurrentContent());
-    console.log(rawContentState);
-    const tempHeaders = [];
-    rawContentState.blocks.forEach((block) => {
-      if (block.type === "header-one" || block.type === "header-two" || block.type === "header-three") tempHeaders.push(block);
-    });
-    const pullHastags = () => {
-      const tempHastags = [];
-      editorState
-        .getCurrentContent()
-        .getBlocksAsArray()
-        .forEach((block) => {
-          if (block.getType() === "unstyled") {
-            const text = block.getText();
-            // hashtag regex
-            const ht = text.match(/#[a-z]+/gi);
-            // clean the ht
-            if (ht) {
-              ht.forEach((h) => {
-                const clean = h.replace("#", "");
-                if (!tempHastags.includes(clean)) tempHastags.push(clean);
-              });
-            }
-          }
-        });
-      setHashtags(tempHastags);
+    setHeaders(pullHeaders(rawContentState));
+    setHashtags(pullHastags(editorState));
+    const updateBlogMeta = () => {
+      setBlogMeta((prev) => ({
+        ...prev,
+        filename: snapshot?.data()?.fileName ?? "Untitled",
+        readTime: calculateReadTime(rawContentState),
+        blogStatus: blogStatus,
+        title: findTitle(rawContentState) ?? snapshot?.data()?.fileName ?? "Untitled",
+      }));
     };
-    setHeaders(tempHeaders);
-    pullHastags();
-  }, [editorState]);
+    updateBlogMeta();
+  }, [editorState, blogStatus, hashtags, snapshot]);
 
   return (
     <main className="w-full h-screen text-black ">
@@ -159,7 +170,7 @@ const BlogEditor = ({ id }) => {
             <p className="text-white text-sm">Hang tight! Your work is being saved</p>
           </div>
           {/* Top Navigation */}
-          <EditorTopNav discardDocument={discardDocument} />
+          <EditorTopNav discardDocument={discardDocument} blogMeta={blogMeta} />
           <Editor
             editorState={editorState}
             wrapperClassName="max-w-3xl mx-auto h-full w-full  flex flex-col [&>.rdw-editor-main]:flex-1 !overflow-hidden"
@@ -184,7 +195,7 @@ const BlogEditor = ({ id }) => {
             }}
           />
         </div>
-        <EditorRightAside session={session} progress={uploadPercentage} tags={hashtags} handleSave={handleSave} saving={saving} />
+        <EditorRightAside session={session} progress={uploadPercentage} tags={hashtags} handleSave={handleSave} saving={saving} blogMeta={blogMeta} />
       </div>
     </main>
   );

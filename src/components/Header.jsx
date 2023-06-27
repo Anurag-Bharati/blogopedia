@@ -40,8 +40,8 @@ const Header = () => {
   const createDocument = async (e) => {
     e.preventDefault();
     if (state.loading) return;
-    var title = e.target.title.value;
-    if (!title || title.trim() === "") return setFormError("Title cannot be empty");
+    var fileName = e.target.fileName.value;
+    if (!fileName || fileName.trim() === "") return setFormError("Title cannot be empty");
     if (status !== "authenticated") return;
     setState({ loading: true });
     const blogsCollection = collection(firestore, "blogs");
@@ -51,7 +51,7 @@ const Header = () => {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         author: session.user,
-        title: title.trim(),
+        fileName: fileName.trim(),
         status: "draft",
         likes: 0,
         views: 0,
@@ -189,8 +189,8 @@ const Header = () => {
                         className={`block min-w-[180px] w-full p-2 pl-3 pr-3 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate ${
                           formError ? "border-2 border-red-400" : "border-0"
                         }  }`}
-                        placeholder="Title of your blog"
-                        id="title"
+                        placeholder="File Name"
+                        id="fileName"
                         type="text"
                         onFocus={() => setFormError(null)}
                       />
