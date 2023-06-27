@@ -1,5 +1,4 @@
-import { BiCheck, BiDetail, BiInfoCircle, BiSearch, BiSolidTagX } from "react-icons/bi";
-import { CiSaveDown1 } from "react-icons/ci";
+import { BiSearch, BiSolidTagX } from "react-icons/bi";
 import UserOptionsBar from "./UserOptionsBar";
 
 const EditorRightAside = ({ tags = [], session, handleSave, saving, blogMeta }) => {
@@ -31,7 +30,7 @@ const EditorRightAside = ({ tags = [], session, handleSave, saving, blogMeta }) 
           <div className="p-2 rounded-md  h-[150px] bg-[#111] mt-2 ">
             <div className="overflow-y-scroll h-full w-full truncate override-scroll-bar-all flex gap-2  flex-wrap items-start content-start">
               {tags.length === 0 && (
-                <div className=" bg-[#111] flex flex-col h-full w-full justify-center items-center rounded-md text-sm gap-1">
+                <div className=" bg-[#111] flex flex-col h-full w-full justify-center items-center rounded-md text-sm">
                   <BiSolidTagX className="w-6 h-6 text-gray-400" />
                   <span className="text-gray-400">No tags found</span>
                   <span className="text-gray-400">
@@ -56,7 +55,7 @@ const EditorRightAside = ({ tags = [], session, handleSave, saving, blogMeta }) 
         </div>
         <div className="p-4">
           <p className="text-white">Metadata</p>
-          <div className="p-2 rounded-md  h-[180px] bg-[#111] mt-2 ">
+          <div className="p-2 rounded-md  bg-[#111] mt-2 ">
             <div className="overflow-y-scroll h-full w-full truncate override-scroll-bar-all flex  flex-col items-start content-start text-white text-sm">
               <p className="">
                 Title: <span className="text-gray-200">{blogMeta?.title}</span>
@@ -66,7 +65,7 @@ const EditorRightAside = ({ tags = [], session, handleSave, saving, blogMeta }) 
               </p>
 
               <p className="">
-                File name: <span className="text-gray-200">{blogMeta?.filename}</span>
+                Filename: <span className="text-gray-200">{blogMeta?.filename}</span>
               </p>
               <p className="">
                 {/* // change created to Date */}

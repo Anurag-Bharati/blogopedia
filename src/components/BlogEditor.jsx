@@ -3,8 +3,11 @@
 import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import moment from "moment";
 
-import { EditorState, convertToRaw } from "draft-js";
+import { EditorState, convertToRaw, convertFromRaw } from "draft-js";
 // SSR is disabled for Editor component since it uses draft-js which is not compatible with SSR
 const Editor = dynamic(() => import("react-draft-wysiwyg").then((mod) => mod.Editor), { ssr: false });
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -12,25 +15,30 @@ import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { firestore } from "@/config/firebase/firebase";
 import { useDocumentOnce } from "react-firebase-hooks/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 
-import { deleteDoc, doc } from "firebase/firestore";
 import EditorLeftAside from "./EditorLeftAside";
 import EditorRightAside from "./EditorRightAside";
-import Image from "next/image";
-import moment from "moment";
 import EditorTopNav from "./EditorTopNav";
-import { useRouter } from "next/navigation";
 
 import { calculateReadTime, findTitle, pullHastags, pullHeaders, scrollIntoView } from "@/utils/blog.utils";
 
 const storage = getStorage();
 const dummyImageUrl =
   "https://firebasestorage.googleapis.com/v0/b/blogopedia-dev.appspot.com/o/blogs%2Fplaceholder.png?alt=media&token=a897007f-e8d1-487e-b318-7d31c6ae7a04";
+const editorPlaceholder = "Start writing your blog here...\nRemember that first H1 determines the title of your blog.";
 
 const BlogEditor = ({ id }) => {
   const router = useRouter();
   // Check if user is logged in; redirect to login page if not
   const { data: session, status } = useSession({ required: true });
+
+  // DraftJS Stuffs
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const onEditorStateChange = (editorState) => setEditorState(editorState);
+
+  // Fetch blog data from firestore using id with react-firebase-hooks
+  const [snapshot, loading, error] = useDocumentOnce(doc(firestore, "blogs", id));
 
   const [image, setImage] = useState(null);
   const [uploadPercentage, setUploadPercentage] = useState(0);
@@ -38,82 +46,44 @@ const BlogEditor = ({ id }) => {
   const [hashtags, setHashtags] = useState([]);
   const [saving, setSaving] = useState(false);
   const [downloadURL, setDownloadURL] = useState(null);
-  const [blogStatus, setBlogStatus] = useState("unsaved");
+  const [blogStatus, setBlogStatus] = useState("draft");
+  const [autoSaveStatus, setAutoSaveStatus] = useState("saved");
 
-  // Fetch blog data from firestore using id with react-firebase-hooks
-  const [snapshot, loading, error] = useDocumentOnce(doc(firestore, "blogs", id));
-
+  // Set blog meta data this will be used in the top nav and right aside
   const [blogMeta, setBlogMeta] = useState({
     title: "loading...",
     readTime: 0,
-    status: "unsaved",
+    status: "draft",
     createdAt: "loading...",
     updatedAt: "loading...",
     filename: "loading...",
+    autosaving: "loading...",
   });
 
-  // Log the blog data
-  useEffect(() => {
-    if (!snapshot) return;
-    setBlogMeta((prev) => ({
-      ...prev,
-      title: findTitle(snapshot?.data()?.content) ?? snapshot?.data()?.fileName ?? "Untitled",
-      status: snapshot?.data()?.status ?? blogStatus ?? "unsaved",
-      // convert int timestamp (createdAt) to  time ago
-      createdAt: moment(snapshot?.data()?.createdAt.seconds * 1000).fromNow(),
-      updatedAt: moment(snapshot?.data()?.createdAt.seconds * 1000).fromNow(),
-      filename: snapshot?.data()?.fileName ?? "Untitled",
-    }));
-  }, [blogStatus, snapshot]);
-
-  // DraftJS Stuffs
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const onEditorStateChange = (editorState) => setEditorState(editorState);
-
   // delete document and redirect to home page
-  const discardDocument = () => {
-    const docRef = doc(firestore, "blogs", id);
-    deleteDoc(docRef);
-    router.push("/");
+  const discardDocument = async () => {
+    try {
+      const docRef = doc(firestore, "blogs", id);
+      await deleteDoc(docRef);
+      router.push("/");
+    } catch (error) {
+      console.log("Error during deletion", error);
+    } finally {
+      console.log("done deleting");
+    }
   };
-
-  // listen for changes in downloadURL and upload the blog to firestore
-  useEffect(() => {
-    console.log("Inside useEffect of setDownloadURL");
-    if (!setDownloadURL) return setSaving(false);
-    const uploadToFiresotre = () => {
-      const rawContentState = convertToRaw(editorState.getCurrentContent());
-      const data = {
-        title: findTitle(rawContentState) ?? snapshot?.data()?.fileName ?? "Untitled",
-        content: rawContentState,
-        hashtags: hashtags,
-        cover: downloadURL,
-        toc: headers,
-        readTime: calculateReadTime(rawContentState),
-        status: blogStatus,
-      };
-      console.log(data);
-    };
-    uploadToFiresotre();
-    setUploadPercentage(0);
-    setSaving(false);
-    setDownloadURL(() => null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [downloadURL]);
 
   // main function to save the blog
   const handleSave = (status = "draft") => {
     setBlogStatus(status);
     setSaving(true);
-    console.log("saving...");
     if (image) uploadImage(image);
     else setDownloadURL(dummyImageUrl);
   };
 
   // upload image to firebase storage
-  const uploadImage = async (file) => {
-    console.log("Inside uploadImage");
-    if (!session) return;
+  const uploadImage = (file) => {
+    if (!session || !file) return;
     const ts = Date.now().toString();
     const path = session?.user?.email?.split("@")[0];
     const storageRef = ref(storage, `blogs/${path}/cover-${ts}`);
@@ -122,7 +92,6 @@ const BlogEditor = ({ id }) => {
       "state_changed",
       (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Upload is ${progress}% done`);
         setUploadPercentage(progress);
       },
       (error) => console.log(error),
@@ -134,21 +103,122 @@ const BlogEditor = ({ id }) => {
     );
   };
 
+  // Log the blog data
   useEffect(() => {
-    const rawContentState = convertToRaw(editorState.getCurrentContent());
-    setHeaders(pullHeaders(rawContentState));
-    setHashtags(pullHastags(editorState));
-    const updateBlogMeta = () => {
+    if (!snapshot) return;
+    setBlogMeta((prev) => ({
+      ...prev,
+      title: findTitle(snapshot?.data()?.content) ?? snapshot?.data()?.fileName ?? "Untitled",
+      status: snapshot?.data()?.status ?? blogStatus ?? "draft",
+      // convert int timestamp (createdAt) to  time ago
+      createdAt: moment(snapshot?.data()?.createdAt.seconds * 1000).fromNow(),
+      updatedAt: moment(snapshot?.data()?.createdAt.seconds * 1000).fromNow(),
+      filename: snapshot?.data()?.fileName ?? "Untitled",
+    }));
+    //apply the blog content to the editor
+    setEditorState(EditorState.createWithContent(convertFromRaw(snapshot?.data()?.content)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snapshot]);
+
+  // listen for changes in downloadURL and upload the blog to firestore
+  useEffect(() => {
+    if (!downloadURL) return setSaving(false);
+    const uploadToFiresotre = async () => {
+      const rawContentState = convertToRaw(editorState.getCurrentContent());
+      const data = {
+        title: findTitle(rawContentState) ?? snapshot?.data()?.title ?? snapshot?.data()?.filename ?? "Untitled",
+        content: rawContentState,
+        hashtags: hashtags,
+        cover: downloadURL,
+        toc: headers,
+        readTime: calculateReadTime(rawContentState),
+        status: blogStatus,
+      };
+      // fallback to stop the saving animation after 15 seconds
+      let fallback = null;
+      try {
+        fallback = setTimeout(() => {
+          setSaving(false);
+          setAutoSaveStatus("error");
+        }, 15000);
+        const docRef = doc(firestore, "blogs", id);
+        await updateDoc(docRef, data, { merge: true });
+        setAutoSaveStatus("saved");
+        setUploadPercentage(0);
+        setDownloadURL(null);
+      } catch (error) {
+        console.log("Error during upload by input", error);
+        setAutoSaveStatus("error");
+      } finally {
+        setSaving(false);
+        clearTimeout(fallback);
+      }
+    };
+    uploadToFiresotre();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [downloadURL]);
+
+  // sync the blog to firestore after 15 seconds of unsaved changes
+  useEffect(() => {
+    // sync the blog to firestore
+    const syncBlog = async (rawContentState) => {
+      const data = {
+        content: rawContentState,
+        hashtags: hashtags,
+        toc: headers,
+        readTime: calculateReadTime(rawContentState),
+      };
+      let fallback = null;
+      try {
+        const docRef = doc(firestore, "blogs", id);
+        fallback = setTimeout(() => {
+          setAutoSaveStatus("error");
+        }, 15000);
+        await updateDoc(docRef, data, { merge: true });
+        setAutoSaveStatus("saved");
+      } catch (error) {
+        console.log("Error during autosave", error);
+        setAutoSaveStatus("error");
+      } finally {
+        clearTimeout(fallback);
+        console.log("done autosaving, sleeping for 20 seconds");
+      }
+    };
+
+    // timer to trigger syncBlog after 15 seconds
+    const saveTimer = setInterval(() => {
+      // pull out the rawContentState from editorState
+      const rawContentState = convertToRaw(editorState.getCurrentContent());
+      console.log(rawContentState);
+      setAutoSaveStatus("saving");
+      // sync the blog to firestore
+      syncBlog(rawContentState);
+    }, 30000);
+
+    // clear the timer and interval
+    return () => clearInterval(saveTimer);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // set the autosave status in the top nav
+  useEffect(() => setBlogMeta((prev) => ({ ...prev, autosaving: autoSaveStatus })), [autoSaveStatus]);
+
+  // main function to calculate headers, hashtags and read time
+  useEffect(() => {
+    const debounceCalculation = setTimeout(() => {
+      const rawContentState = convertToRaw(editorState.getCurrentContent());
+      setHeaders(pullHeaders(rawContentState));
+      setHashtags(pullHastags(editorState));
       setBlogMeta((prev) => ({
         ...prev,
-        filename: snapshot?.data()?.fileName ?? "Untitled",
         readTime: calculateReadTime(rawContentState),
-        blogStatus: blogStatus,
-        title: findTitle(rawContentState) ?? snapshot?.data()?.fileName ?? "Untitled",
+        title: findTitle(rawContentState) ?? prev.title ?? "Untitled",
       }));
-    };
-    updateBlogMeta();
-  }, [editorState, blogStatus, hashtags, snapshot]);
+    }, 300);
+    return () => clearTimeout(debounceCalculation);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorState]);
 
   return (
     <main className="w-full h-screen text-black ">
@@ -177,6 +247,7 @@ const BlogEditor = ({ id }) => {
             toolbarClassName="gap-1 [&>div]:border-r [&>div]:pr-1 [&>div>*]:!border-none [&>div>*]:hover:!shadow-none !mb-0 [&>div>.rdw-option-active]:bg-[#2dcdff] override-scroll-bar"
             editorClassName="bg-white pb-0 px-[5%] pt-[3%] override-scroll-bar-all"
             onEditorStateChange={onEditorStateChange}
+            placeholder={editorPlaceholder}
             hashtag={{
               separator: " ",
               trigger: "#",

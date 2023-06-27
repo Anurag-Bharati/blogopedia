@@ -1,12 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { BiCheck, BiDetail, BiInfoCircle } from "react-icons/bi";
-import { CiCircleCheck, CiCircleInfo, CiSaveDown1, CiStickyNote } from "react-icons/ci";
+import { CiCircleAlert, CiCircleCheck, CiCircleInfo, CiSaveDown1, CiStickyNote } from "react-icons/ci";
 
 const EditorTopNav = ({ discardDocument, blogMeta }) => {
   const [confirmDiscardDialog, setConfirmDiscardDialog] = useState(false);
-
   return (
     <nav className=" bg-white border-b">
       {/* Popup model */}
@@ -43,39 +41,51 @@ const EditorTopNav = ({ discardDocument, blogMeta }) => {
         </div>
         <div className="flex justify-end items-center text-sm gap-2">
           {/* blog status indicator */}
-          {blogMeta?.blogStatus === "published" && (
+          {blogMeta?.status === "published" && (
             <span
               className="flex gap-1 justify-center items-center  px-1 py-px border border-green-400 rounded-full text-xs cursor-pointer "
-              title={`Status: ${blogMeta?.blogStatus}`}
+              title={`Status: ${blogMeta?.status}`}
             >
               <CiCircleCheck className="w-3 h-3 text-green-400" />
-              <p className="text-green-400 uppercase ">{blogMeta?.blogStatus}</p>
+              <p className="text-green-400 uppercase ">{blogMeta?.status}</p>
             </span>
           )}
-          {blogMeta?.blogStatus === "draft" && (
+          {blogMeta?.status === "draft" && (
             <span
               className="flex gap-1 justify-center items-center  px-1 py-px border border-cyan-400 rounded-full text-xs cursor-pointer "
-              title={`Status: ${blogMeta?.blogStatus}`}
+              title={`Status: ${blogMeta?.status}`}
             >
               <CiStickyNote className="w-3 h-3 text-cyan-400" />
-              <p className="text-cyan-400 uppercase ">{blogMeta?.blogStatus}</p>
+              <p className="text-cyan-400 uppercase ">{blogMeta?.status}</p>
             </span>
           )}
-          {blogMeta?.blogStatus === "unsaved" && (
+          {blogMeta?.status === "unsaved" && (
             <span
               className="flex gap-1 justify-center items-center  px-1 py-px border  rounded-full text-xs cursor-pointer "
-              title={`Status: ${blogMeta?.blogStatus}`}
+              title={`Status: ${blogMeta?.status}`}
             >
               <CiCircleInfo className="w-3 h-3 text-black" />
-              <p className=" uppercase ">{blogMeta?.blogStatus}</p>
+              <p className=" uppercase ">{blogMeta?.status}</p>
             </span>
           )}
           <span
-            className="flex gap-1 justify-center items-center  px-1 py-px border  rounded-full text-xs cursor-pointer "
-            title={`Doc Saved ${blogMeta?.updatedAt}`}
+            className={`flex gap-1 justify-center items-center  px-1 py-px border  rounded-full text-xs cursor-pointer ${
+              blogMeta?.autosaving === "saving"
+                ? " border-amber-400 text-amber-400"
+                : blogMeta?.autosaving === "error"
+                ? "animate-pulse border-red-400 text-red-400"
+                : blogMeta?.autosaving === "saved" && " border-green-400 text-green-400"
+            }`}
+            title={` ${blogMeta?.autosaving === "error" ? "Autosave failed, try saving manually." : `Doc Saved ${blogMeta?.updatedAt}`} `}
           >
-            <CiSaveDown1 className="w-3 h-3 text-black" />
-            <p className=" uppercase ">{blogMeta?.updatedAt}</p>
+            {blogMeta?.autosaving === "error" && <CiCircleAlert className="w-3 h-3 " />}
+            {blogMeta?.autosaving === "saving" && <CiSaveDown1 className="w-3 h-3 animate animate-spin" />}
+            {blogMeta?.autosaving === "saved" && <CiCircleCheck className="w-3 h-3 " />}
+            {blogMeta?.autosaving === "saving" || blogMeta?.autosaving === "error" ? (
+              <p className=" uppercase ">{blogMeta?.autosaving}</p>
+            ) : (
+              <p className=" uppercase">{blogMeta?.updatedAt}</p>
+            )}
           </span>
           <div
             className="m-2 px-2 py-0.5  cursor-pointer bg-red-400 rounded-full hover:bg-red-500 hover:text-white"
