@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@next-auth/firebase-adapter": "^2.0.1",
+    "axios": "^1.4.0",
     "draft-js": "^0.11.7",
     "encoding": "^0.1.13",
     "firebase": "^9.23.0",

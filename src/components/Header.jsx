@@ -56,9 +56,9 @@ const Header = () => {
         likes: 0,
         views: 0,
         tags: [],
-        references: [],
+        title: fileName.trim(),
         toc: [],
-        coverImage: "",
+        cover: null,
         readTime: null,
       });
       router.push(`/editor/${addedDocRef.id}`);

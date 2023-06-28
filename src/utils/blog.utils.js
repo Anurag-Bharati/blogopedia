@@ -45,3 +45,16 @@ export const pullHeaders = (rawContentState) => {
   });
   return tempHeaders;
 };
+
+// compare array using JSON.stringify
+export const isArrayDifferent = (arr1, arr2) => {
+  if (JSON.stringify(arr1) !== JSON.stringify(arr2)) return true;
+  return false;
+};
+// discard blocks with empty text and hashtags
+export const getCleanPlainText = (rawContentState) => {
+  return rawContentState?.blocks
+    .filter((block) => !block.text.match(/#[a-zA-Z0-9]+/g))
+    .filter((block) => block.text.trim() !== "")
+    .reduce((acc, block) => acc + block.text + "\n", "");
+};

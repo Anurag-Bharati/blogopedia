@@ -1,8 +1,7 @@
 "use client";
-
 import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import moment from "moment";
@@ -15,30 +14,33 @@ import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { firestore } from "@/config/firebase/firebase";
 import { useDocumentOnce } from "react-firebase-hooks/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
-import { deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 
 import EditorLeftAside from "./EditorLeftAside";
 import EditorRightAside from "./EditorRightAside";
 import EditorTopNav from "./EditorTopNav";
 
-import { calculateReadTime, findTitle, pullHastags, pullHeaders, scrollIntoView } from "@/utils/blog.utils";
+import { calculateReadTime, isArrayDifferent, findTitle, pullHastags, pullHeaders, scrollIntoView, getCleanPlainText } from "@/utils/blog.utils";
+import { getTLDR } from "@/app/actions";
 
 const storage = getStorage();
 const dummyImageUrl =
   "https://firebasestorage.googleapis.com/v0/b/blogopedia-dev.appspot.com/o/blogs%2Fplaceholder.png?alt=media&token=a897007f-e8d1-487e-b318-7d31c6ae7a04";
 const editorPlaceholder = "Start writing your blog here...\nRemember that first H1 determines the title of your blog.";
 
-const BlogEditor = ({ id }) => {
+const BlogEditor = ({ id, useTLDR = false }) => {
   const router = useRouter();
   // Check if user is logged in; redirect to login page if not
-  const { data: session, status } = useSession({ required: true });
+  const { data: session } = useSession({ required: true });
 
   // DraftJS Stuffs
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const onEditorStateChange = (editorState) => setEditorState(editorState);
 
+  // use useMemo for docRef
+  const docRef = useMemo(() => doc(firestore, "blogs", id), [id]);
   // Fetch blog data from firestore using id with react-firebase-hooks
-  const [snapshot, loading, error] = useDocumentOnce(doc(firestore, "blogs", id));
+  const [snapshot, loading, error] = useDocumentOnce(docRef);
 
   const [image, setImage] = useState(null);
   const [uploadPercentage, setUploadPercentage] = useState(0);
@@ -48,6 +50,7 @@ const BlogEditor = ({ id }) => {
   const [downloadURL, setDownloadURL] = useState(null);
   const [blogStatus, setBlogStatus] = useState("draft");
   const [autoSaveStatus, setAutoSaveStatus] = useState("saved");
+  const [lastSaved, setLastSaved] = useState(null);
 
   // Set blog meta data this will be used in the top nav and right aside
   const [blogMeta, setBlogMeta] = useState({
@@ -63,7 +66,6 @@ const BlogEditor = ({ id }) => {
   // delete document and redirect to home page
   const discardDocument = async () => {
     try {
-      const docRef = doc(firestore, "blogs", id);
       await deleteDoc(docRef);
       router.push("/");
     } catch (error) {
@@ -112,51 +114,56 @@ const BlogEditor = ({ id }) => {
       status: snapshot?.data()?.status ?? blogStatus ?? "draft",
       // convert int timestamp (createdAt) to  time ago
       createdAt: moment(snapshot?.data()?.createdAt.seconds * 1000).fromNow(),
-      updatedAt: moment(snapshot?.data()?.createdAt.seconds * 1000).fromNow(),
+      updatedAt: moment(snapshot?.data()?.updatedAt.seconds * 1000).fromNow(),
       filename: snapshot?.data()?.fileName ?? "Untitled",
     }));
     //apply the blog content to the editor
-    setEditorState(EditorState.createWithContent(convertFromRaw(snapshot?.data()?.content)));
+    if (snapshot?.data()?.content) setEditorState(EditorState.createWithContent(convertFromRaw(snapshot?.data()?.content)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [snapshot]);
 
   // listen for changes in downloadURL and upload the blog to firestore
   useEffect(() => {
-    if (!downloadURL) return setSaving(false);
+    if (!downloadURL || !docRef || !editorState) return setSaving(false);
     const uploadToFiresotre = async () => {
       const rawContentState = convertToRaw(editorState.getCurrentContent());
-      const data = {
-        title: findTitle(rawContentState) ?? snapshot?.data()?.title ?? snapshot?.data()?.filename ?? "Untitled",
-        content: rawContentState,
-        hashtags: hashtags,
-        cover: downloadURL,
-        toc: headers,
-        readTime: calculateReadTime(rawContentState),
-        status: blogStatus,
-      };
+
+      // get the clean plain text from the editor
+      const plainText = getCleanPlainText(rawContentState);
+
+      // generate TLDR
+      let tldr = "TLDR disabled";
+
+      if (useTLDR) tldr = await getTLDR(plainText);
+      const data = { cover: downloadURL, tldr: tldr };
+
       // fallback to stop the saving animation after 15 seconds
       let fallback = null;
+      fallback = setTimeout(() => {
+        setSaving(false);
+        setAutoSaveStatus("error");
+      }, 15000);
+
       try {
-        fallback = setTimeout(() => {
-          setSaving(false);
-          setAutoSaveStatus("error");
-        }, 15000);
-        const docRef = doc(firestore, "blogs", id);
         await updateDoc(docRef, data, { merge: true });
         setAutoSaveStatus("saved");
         setUploadPercentage(0);
-        setDownloadURL(null);
+        setTimeout(() => {
+          setDownloadURL(null);
+        }, 2000);
       } catch (error) {
         console.log("Error during upload by input", error);
         setAutoSaveStatus("error");
       } finally {
-        setSaving(false);
         clearTimeout(fallback);
+        setSaving(false);
       }
     };
-    uploadToFiresotre();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [downloadURL]);
+    const debounceReq = setTimeout(() => {
+      uploadToFiresotre();
+    }, 1000);
+    return () => clearTimeout(debounceReq);
+  }, [docRef, downloadURL, editorState, useTLDR]);
 
   // sync the blog to firestore after 15 seconds of unsaved changes
   useEffect(() => {
@@ -164,62 +171,90 @@ const BlogEditor = ({ id }) => {
     const syncBlog = async (rawContentState) => {
       const data = {
         content: rawContentState,
-        hashtags: hashtags,
+        tags: hashtags,
         toc: headers,
         readTime: calculateReadTime(rawContentState),
+        updatedAt: serverTimestamp(),
+        title: findTitle(rawContentState) ?? snapshot?.data()?.title ?? snapshot?.data()?.filename ?? "Untitled",
       };
       let fallback = null;
       try {
-        const docRef = doc(firestore, "blogs", id);
         fallback = setTimeout(() => {
           setAutoSaveStatus("error");
         }, 15000);
         await updateDoc(docRef, data, { merge: true });
-        setAutoSaveStatus("saved");
+        const newDoc = await getDoc(docRef);
+        if (newDoc.exists()) {
+          const updatedAt = moment(newDoc?.data()?.updatedAt.seconds * 1000).fromNow();
+          setLastSaved(updatedAt);
+        }
+        setTimeout(() => {
+          setAutoSaveStatus("saved");
+        }, 3000);
       } catch (error) {
         console.log("Error during autosave", error);
-        setAutoSaveStatus("error");
+        setTimeout(() => {
+          setAutoSaveStatus("error");
+        }, 3000);
       } finally {
         clearTimeout(fallback);
-        console.log("done autosaving, sleeping for 20 seconds");
+        console.log("done autosaving, looking for changes...");
       }
     };
 
+    // run this once
+    if (!docRef) return;
+    // pull out the rawContentState from editorState
+    const rawContentState = convertToRaw(editorState.getCurrentContent());
+
+    // dont make editor state constently trigger autosave
     // timer to trigger syncBlog after 15 seconds
-    const saveTimer = setInterval(() => {
-      // pull out the rawContentState from editorState
-      const rawContentState = convertToRaw(editorState.getCurrentContent());
-      console.log(rawContentState);
+    const saveTimer = setTimeout(() => {
       setAutoSaveStatus("saving");
+      console.log("autosaving");
       // sync the blog to firestore
       syncBlog(rawContentState);
-    }, 30000);
+    }, 3000);
 
-    // clear the timer and interval
-    return () => clearInterval(saveTimer);
-
+    return () => clearTimeout(saveTimer);
+    // return () => clearInterval(saveTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [docRef, hashtags, headers, editorState]);
 
   // set the autosave status in the top nav
   useEffect(() => setBlogMeta((prev) => ({ ...prev, autosaving: autoSaveStatus })), [autoSaveStatus]);
+
+  // set lastSaved in the top nav
+  useEffect(() => setBlogMeta((prev) => ({ ...prev, lastSaved: lastSaved })), [lastSaved]);
 
   // main function to calculate headers, hashtags and read time
   useEffect(() => {
     const debounceCalculation = setTimeout(() => {
       const rawContentState = convertToRaw(editorState.getCurrentContent());
-      setHeaders(pullHeaders(rawContentState));
-      setHashtags(pullHastags(editorState));
+      const newHeaders = pullHeaders(rawContentState);
+      const newHashtags = pullHastags(editorState);
+      // compare with old headers and hashtags to avoid unnecessary rerenders
+      isArrayDifferent(newHeaders, headers) && setHeaders(newHeaders);
+      isArrayDifferent(newHashtags, hashtags) && setHashtags(newHashtags);
+
       setBlogMeta((prev) => ({
         ...prev,
+        status: blogStatus,
         readTime: calculateReadTime(rawContentState),
         title: findTitle(rawContentState) ?? prev.title ?? "Untitled",
       }));
     }, 300);
     return () => clearTimeout(debounceCalculation);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editorState]);
+  }, [editorState, blogStatus]);
 
+  // TODO : Implement the following in separate components
+  if (loading) return <div className="w-full h-screen flex justify-center items-center">Loading...</div>;
+  if (error) return <div className="w-full h-screen flex justify-center items-center">Error: {error.message}</div>;
+  if (!snapshot.exists()) return <div className="w-full h-screen flex justify-center items-center">Document does not exist</div>;
+  // check if user is the owner of the blog
+  if (snapshot?.data()?.author.email !== session?.user?.email)
+    return <div className="w-full h-screen flex justify-center items-center"> Unauthorized </div>;
   return (
     <main className="w-full h-screen text-black ">
       <div className="w-full h-full flex">
