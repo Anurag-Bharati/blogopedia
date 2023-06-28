@@ -1,10 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { BiLoader } from "react-icons/bi";
 import { CiCircleAlert, CiCircleCheck, CiCircleInfo, CiSaveDown1, CiStickyNote } from "react-icons/ci";
 
 const EditorTopNav = ({ discardDocument, blogMeta }) => {
   const [confirmDiscardDialog, setConfirmDiscardDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const handleDiscard = async () => {
+    setLoading(true);
+    await discardDocument();
+    setLoading(false);
+  };
   return (
     <nav className=" bg-white border-b">
       {/* Popup model */}
@@ -18,10 +25,11 @@ const EditorTopNav = ({ discardDocument, blogMeta }) => {
           <p className="text-sm pt-2 px-2"> Once discarded, it cannot be recovered!</p>
           <div className="flex justify-evenly items-center p-2">
             <div
-              className="m-2 px-1 py-0.5 grow cursor-pointer bg-red-400 rounded-full hover:bg-red-500 hover:text-white text-center"
-              onClick={discardDocument}
+              className="m-2 px-1 py-0.5 grow cursor-pointer bg-red-400 rounded-full hover:bg-red-500 hover:text-white text-center flex gap-1 items-center justify-center"
+              onClick={handleDiscard}
             >
-              Discard
+              <BiLoader className={`animate-spin ${loading ? "inline-block" : "hidden"}`} />
+              {loading ? "Discarding..." : "Discard"}
             </div>
             <div className="m-2 px-1 py-0.5 grow cursor-pointer rounded-full  text-center  " onClick={() => setConfirmDiscardDialog(false)}>
               Cancel
@@ -76,7 +84,9 @@ const EditorTopNav = ({ discardDocument, blogMeta }) => {
                 ? "animate-pulse border-red-400 text-red-400"
                 : blogMeta?.autosaving === "saved" && " border-green-400 text-green-400"
             }`}
-            title={` ${blogMeta?.autosaving === "error" ? "Autosave failed, try saving manually." : `Doc Saved ${blogMeta?.updatedAt}`} `}
+            title={` ${
+              blogMeta?.autosaving === "error" ? "Autosave failed, try saving manually." : `Doc Saved ${blogMeta?.lastSaved ?? blogMeta?.updatedAt}`
+            } `}
           >
             {blogMeta?.autosaving === "error" && <CiCircleAlert className="w-3 h-3 " />}
             {blogMeta?.autosaving === "saving" && <CiSaveDown1 className="w-3 h-3 animate animate-spin" />}
@@ -84,7 +94,7 @@ const EditorTopNav = ({ discardDocument, blogMeta }) => {
             {blogMeta?.autosaving === "saving" || blogMeta?.autosaving === "error" ? (
               <p className=" uppercase ">{blogMeta?.autosaving}</p>
             ) : (
-              <p className=" uppercase">{blogMeta?.updatedAt}</p>
+              <p className=" uppercase">{blogMeta?.lastSaved ?? blogMeta?.updatedAt}</p>
             )}
           </span>
           <div
