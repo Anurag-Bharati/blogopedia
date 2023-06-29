@@ -31,7 +31,7 @@ const BlogFileCard = ({ blog, i }) => {
             </span>
           </div>
         </div>
-        <p className="text-md truncate">{blog.data.tldr ?? <span className="text-gray-400">No text content to display</span>}</p>
+        <p className="text-md truncate max-w-2xl">{blog.data.tldr ?? <span className="text-gray-400">No text content to display</span>}</p>
         <div className="flex gap-2 py-1">
           {blog.data.tags.length === 0 && <span className="py-0.5  px-1 text-xs   text-gray-400 rounded-full w-12 whitespace-nowrap">no tags</span>}
           {blog.data.tags.map((tag, i) => (

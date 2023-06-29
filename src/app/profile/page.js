@@ -3,24 +3,48 @@ import BlogFileCard, { DummyBlogCard } from "@/components/BlogFileCard";
 import Footer from "@/components/Footer";
 import UserOptionsBar from "@/components/UserOptionsBar";
 import { firestore } from "@/config/firebase/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { BiCheckCircle, BiDetail } from "react-icons/bi";
+import ReactPaginate from "react-paginate";
+
+const itemsPerPage = 3;
+const filterTypes = [where("status", "==", "published"), where("status", "==", "draft")];
 
 export default function Page() {
   const { data: session, status } = useSession({ required: true });
   const [myBlogs, setMyBlogs] = useState([]);
+  const [filter, setFilter] = useState(-1);
+  const [sort, setSort] = useState("desc");
   const collectionRef = useMemo(() => collection(firestore, "blogs"), []);
+
+  // Pagination
+  const [itemOffset, setItemOffset] = useState(0);
+  const handlePageClick = (event) => {
+    const newOffset = (event.selected * itemsPerPage) % myBlogs.length;
+    console.log(`User requested page number ${event.selected}, which is offset ${newOffset}`);
+    setItemOffset(newOffset);
+  };
+  const endOffset = itemOffset + itemsPerPage;
+  console.log(`Loading items from ${itemOffset} to ${endOffset}`);
+  const currentItems = myBlogs.slice(itemOffset, endOffset);
+  const pageCount = Math.ceil(myBlogs.length / itemsPerPage);
+
   useEffect(() => {
     if (status !== "authenticated") return;
-    const q = query(collectionRef, where("author.email", "==", session?.user.email));
+    // also add sort by recent
+    const q =
+      filter == 0 || filter == 1
+        ? query(collectionRef, where("author.email", "==", session?.user.email), filterTypes[filter], orderBy("updatedAt", sort))
+        : query(collectionRef, where("author.email", "==", session?.user.email), orderBy("updatedAt", sort));
     getDocs(q).then((querySnapshot) => {
       if (querySnapshot.empty) return;
       setMyBlogs(querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })));
     });
-  }, [collectionRef, session?.user.email, status]);
+  }, [collectionRef, session?.user.email, status, sort, filter]);
 
   return (
     <>
@@ -78,26 +102,66 @@ export default function Page() {
             </div>
           </div>
         </section>
-        <section className="w-full relative isolate scroll-mt-10" id="myblogs">
-          <header className="mx-auto max-w-3xl w-full  px-4 pb-4">
-            <h1 className="text-2xl">My blogs</h1>
+        <section className="w-full relative isolate scroll-mt-10 py-8" id="myblogs">
+          <header className="mx-auto max-w-3xl w-full  pl-2 pb-4 flex justify-between items-center">
+            <h1 className="text-2xl align-middle">My blogs</h1>
+            <div className="flex gap-2 items-center">
+              <ReactPaginate
+                breakLabel="..."
+                nextLabel="next >"
+                onPageChange={handlePageClick}
+                pageRangeDisplayed={1}
+                pageCount={pageCount}
+                previousLabel="< previous"
+                renderOnZeroPageCount={null}
+                marginPagesDisplayed={1}
+              />
+              <span
+                title="Filter by draft"
+                className={`w-7 h-7  bg-[#222] rounded-full transition ${
+                  filter === 0 ? "bg-[#2dcdff] text-black" : ""
+                } cursor-pointer select-none grid place-items-center`}
+                onClick={() => setFilter(filter === 0 ? -1 : 0)}
+              >
+                <BiDetail className="inline-block align-middle" />
+              </span>
+              <span
+                title="Filter by published"
+                className={`min-w-[28px] h-7 bg-[#222] rounded-full transition ${
+                  filter === 1 ? "bg-[#2dcdff] text-black" : ""
+                } cursor-pointer select-none grid place-items-center`}
+                onClick={() => setFilter(filter === 1 ? -1 : 1)}
+              >
+                <BiCheckCircle className="inline-block align-middle " />
+              </span>
+            </div>
           </header>
+
           <div className="mx-auto max-w-3xl w-full bg-[#111] p-4 rounded-xl">
             <div className="flex flex-col gap-2">
               {myBlogs.length === 0 && (
                 <>
                   <DummyBlogCard />
                   <DummyBlogCard />
+                  <DummyBlogCard />
                 </>
               )}
-              {myBlogs.map((blog, i) => (
-                <BlogFileCard i={i} blog={blog} key={i} />
-              ))}
+              <Blogs currentItems={currentItems} />
             </div>
           </div>
         </section>
       </main>
       <Footer />
+    </>
+  );
+}
+
+function Blogs({ currentItems }) {
+  return (
+    <>
+      {currentItems.map((blog, i) => (
+        <BlogFileCard i={i} blog={blog} key={i} />
+      ))}
     </>
   );
 }

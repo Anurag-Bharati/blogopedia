@@ -34,13 +34,13 @@ const EditorLeftAside = ({ headers, scrollIntoView, setImage, saving, coverLink,
       <div className="flex flex-col h-full ">
         <div className="relative h-48 w-full bg-[#ffffff22] overflow-hidden">
           {cover || coverLink ? (
-            <div>
-              <span className="absolute text-white bg-red-500 text-sm rounded-md px-1 py-0 bottom-0 right-0 m-3 cursor-pointer" onClick={clearImage}>
+            <>
+              <span className="absolute text-white bg-red-500 text-sm rounded-md px-1 py-0 bottom-0 right-0 m-3 cursor-pointer " onClick={clearImage}>
                 {" "}
                 clear
               </span>
-              <Image height={192} width={250} src={cover ?? coverLink} alt="Blog Cover" className="w-full h-44 object-cover" fallback={<div />} />
-            </div>
+              <Image height={192} width={250} src={cover ?? coverLink} alt="Blog Cover" className="w-full h-full object-cover" fallback={<div />} />
+            </>
           ) : (
             <div className=" h-full w-full p-7">
               <div className="relative border-2  h-full w-full rounded-xl border-dashed flex">

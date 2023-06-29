@@ -1,6 +1,6 @@
 import { signOut } from "next-auth/react";
 import React, { useEffect, useState } from "react";
-import { BiCog, BiLogOutCircle } from "react-icons/bi";
+import { BiCog, BiDetail, BiLogOutCircle } from "react-icons/bi";
 
 import InfiniteLinearProgressBar from "./InfiniteLinearProgressBar";
 import Image from "next/image";
@@ -57,6 +57,13 @@ const UserOptionsBar = ({ session, cardClassName = "", redirectToHome = true }) 
             </li>
             <li className={`relative transition-all duration-150 ease-out ${loading ? "pb-2 h-fit opacity-100" : "pb-0 h-0 opacity-0"}`}>
               <InfiniteLinearProgressBar small={true} />
+            </li>
+            <li
+              className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2"
+              onClick={() => router.push("/profile#myblogs")}
+            >
+              <BiDetail className="w-5 h-5" />
+              <p>My Blogs</p>
             </li>
             <li className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2">
               <BiCog className="w-5 h-5" />

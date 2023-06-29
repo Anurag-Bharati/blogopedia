@@ -134,17 +134,17 @@ const BlogEditor = ({ id, useTLDR = false }) => {
 
   // listen for changes in downloadURL and upload the blog to firestore
   useEffect(() => {
-    if (!downloadURL || !docRef || !editorState) return setSaving(false);
+    if (!downloadURL || !docRef || !editorState || !snapshot) return setSaving(false);
     const uploadToFiresotre = async () => {
       const rawContentState = convertToRaw(editorState.getCurrentContent());
 
       // get the clean plain text from the editor
       const plainText = getCleanPlainText(rawContentState);
-
+      console.log("plainText", plainText);
       // generate TLDR
       let tldr = null;
       if (useTLDR) tldr = await getTLDR(plainText);
-      const data = { cover: downloadURL, tldr: tldr, status: blogStatus };
+      const data = { cover: image ? downloadURL : coverImage, tldr: tldr ?? snapshot?.data()?.tldr ?? null, status: blogStatus };
 
       // fallback to stop the saving animation after 15 seconds
       let fallback = null;
@@ -181,7 +181,7 @@ const BlogEditor = ({ id, useTLDR = false }) => {
       uploadToFiresotre();
     }, 1000);
     return () => clearTimeout(debounceReq);
-  }, [docRef, downloadURL, editorState, useTLDR, blogStatus, exitOnSave, router]);
+  }, [docRef, downloadURL, editorState, useTLDR, blogStatus, exitOnSave, router, image, coverImage, snapshot]);
 
   // sync the blog to firestore after 15 seconds of unsaved changes
   useEffect(() => {
@@ -216,7 +216,6 @@ const BlogEditor = ({ id, useTLDR = false }) => {
         }, 3000);
       } finally {
         clearTimeout(fallback);
-        console.log("done autosaving, looking for changes...");
       }
     };
 
@@ -229,7 +228,6 @@ const BlogEditor = ({ id, useTLDR = false }) => {
     // timer to trigger syncBlog after 15 seconds
     const saveTimer = setTimeout(() => {
       setAutoSaveStatus("saving");
-      console.log("autosaving");
       // sync the blog to firestore
       syncBlog(rawContentState);
     }, 3000);
@@ -271,7 +269,7 @@ const BlogEditor = ({ id, useTLDR = false }) => {
   if (error) return <div className="w-full h-screen flex justify-center items-center">Error: {error.message}</div>;
   if (!snapshot.exists()) return <div className="w-full h-screen flex justify-center items-center">Document does not exist</div>;
   // check if user is the owner of the blog
-  if (snapshot?.data()?.author.email !== session?.user?.email)
+  if (!loading && snapshot && snapshot?.data()?.author.email !== session?.user?.email)
     return <div className="w-full h-screen flex justify-center items-center"> Unauthorized </div>;
   return (
     <main className="w-full h-screen text-black ">
