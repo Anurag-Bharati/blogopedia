@@ -101,7 +101,7 @@ const EditorTopNav = ({ discardDocument, blogMeta }) => {
             className="m-2 px-2 py-0.5  cursor-pointer bg-red-400 rounded-full hover:bg-red-500 hover:text-white"
             onClick={() => setConfirmDiscardDialog(true)}
           >
-            Discard
+            {blogMeta.status === "published" ? "Delete" : "Discard"}
           </div>
         </div>
       </div>

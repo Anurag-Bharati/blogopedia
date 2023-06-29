@@ -22,6 +22,7 @@ import EditorTopNav from "./EditorTopNav";
 
 import { calculateReadTime, isArrayDifferent, findTitle, pullHastags, pullHeaders, scrollIntoView, getCleanPlainText } from "@/utils/blog.utils";
 import { getTLDR } from "@/app/actions";
+import InfiniteLinearProgressBar from "./InfiniteLinearProgressBar";
 
 const storage = getStorage();
 const dummyImageUrl =
@@ -51,6 +52,9 @@ const BlogEditor = ({ id, useTLDR = false }) => {
   const [blogStatus, setBlogStatus] = useState("draft");
   const [autoSaveStatus, setAutoSaveStatus] = useState("saved");
   const [lastSaved, setLastSaved] = useState(null);
+  const [exitOnSave, setExitOnSave] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState(null);
+  const [coverImage, setCoverImage] = useState(null);
 
   // Set blog meta data this will be used in the top nav and right aside
   const [blogMeta, setBlogMeta] = useState({
@@ -67,7 +71,7 @@ const BlogEditor = ({ id, useTLDR = false }) => {
   const discardDocument = async () => {
     try {
       await deleteDoc(docRef);
-      router.push("/");
+      router.replace("/profile#myblogs");
     } catch (error) {
       console.log("Error during deletion", error);
     } finally {
@@ -76,15 +80,18 @@ const BlogEditor = ({ id, useTLDR = false }) => {
   };
 
   // main function to save the blog
-  const handleSave = (status = "draft") => {
-    setBlogStatus(status);
+  const handleSave = (status = "draft", exit = false) => {
     setSaving(true);
+    setExitOnSave(exit);
+    setBlogStatus(status);
+    setUploadStatus("uploading assets");
     if (image) uploadImage(image);
     else setDownloadURL(dummyImageUrl);
   };
 
   // upload image to firebase storage
   const uploadImage = (file) => {
+    setUploadPercentage(0);
     if (!session || !file) return;
     const ts = Date.now().toString();
     const path = session?.user?.email?.split("@")[0];
@@ -93,6 +100,7 @@ const BlogEditor = ({ id, useTLDR = false }) => {
     uploadTask.on(
       "state_changed",
       (snapshot) => {
+        if (!saving) setSaving(true);
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setUploadPercentage(progress);
       },
@@ -108,10 +116,12 @@ const BlogEditor = ({ id, useTLDR = false }) => {
   // Log the blog data
   useEffect(() => {
     if (!snapshot) return;
+    setBlogStatus(snapshot?.data()?.status ?? blogStatus ?? "draft");
+    setCoverImage(snapshot?.data()?.cover ?? dummyImageUrl);
     setBlogMeta((prev) => ({
       ...prev,
       title: findTitle(snapshot?.data()?.content) ?? snapshot?.data()?.fileName ?? "Untitled",
-      status: snapshot?.data()?.status ?? blogStatus ?? "draft",
+      status: blogStatus,
       // convert int timestamp (createdAt) to  time ago
       createdAt: moment(snapshot?.data()?.createdAt.seconds * 1000).fromNow(),
       updatedAt: moment(snapshot?.data()?.updatedAt.seconds * 1000).fromNow(),
@@ -132,10 +142,9 @@ const BlogEditor = ({ id, useTLDR = false }) => {
       const plainText = getCleanPlainText(rawContentState);
 
       // generate TLDR
-      let tldr = "TLDR disabled";
-
+      let tldr = null;
       if (useTLDR) tldr = await getTLDR(plainText);
-      const data = { cover: downloadURL, tldr: tldr };
+      const data = { cover: downloadURL, tldr: tldr, status: blogStatus };
 
       // fallback to stop the saving animation after 15 seconds
       let fallback = null;
@@ -147,23 +156,32 @@ const BlogEditor = ({ id, useTLDR = false }) => {
       try {
         await updateDoc(docRef, data, { merge: true });
         setAutoSaveStatus("saved");
-        setUploadPercentage(0);
+        if (exitOnSave) setUploadStatus("redirecting...");
+        else setUploadStatus("data saved");
         setTimeout(() => {
-          setDownloadURL(null);
+          if (exitOnSave) {
+            setExitOnSave(false);
+            router.replace("/profile#myblogs");
+          } else {
+            setDownloadURL(null);
+            setSaving(false);
+          }
         }, 2000);
       } catch (error) {
         console.log("Error during upload by input", error);
         setAutoSaveStatus("error");
+        setSaving(false);
+        setUploadStatus("saving error");
       } finally {
         clearTimeout(fallback);
-        setSaving(false);
       }
     };
     const debounceReq = setTimeout(() => {
+      setUploadStatus("syncing with firestore");
       uploadToFiresotre();
     }, 1000);
     return () => clearTimeout(debounceReq);
-  }, [docRef, downloadURL, editorState, useTLDR]);
+  }, [docRef, downloadURL, editorState, useTLDR, blogStatus, exitOnSave, router]);
 
   // sync the blog to firestore after 15 seconds of unsaved changes
   useEffect(() => {
@@ -258,7 +276,14 @@ const BlogEditor = ({ id, useTLDR = false }) => {
   return (
     <main className="w-full h-screen text-black ">
       <div className="w-full h-full flex">
-        <EditorLeftAside headers={headers} scrollIntoView={scrollIntoView} setImage={setImage} saving={saving} />
+        <EditorLeftAside
+          headers={headers}
+          scrollIntoView={scrollIntoView}
+          setImage={setImage}
+          saving={saving}
+          coverLink={coverImage}
+          setCoverLink={setCoverImage}
+        />
         <div className="relative bg-gray-200 grow flex flex-col h-full">
           {/* Overlay */}
           <div
@@ -269,10 +294,15 @@ const BlogEditor = ({ id, useTLDR = false }) => {
             <Image src="/assets/svgs/logo-full.svg" width={128} height={64} alt="Logo" className="animate-pulse py-2" />
             <div className="px-4">
               <div className="h-1 w-48 bg-gray-300 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${uploadPercentage}%` }}></div>
+                {image && uploadPercentage < 99.0 ? (
+                  <div className="h-full bg-[#a3e635] rounded-full" style={{ width: `${uploadPercentage}%` }}></div>
+                ) : (
+                  <InfiniteLinearProgressBar />
+                )}
               </div>
             </div>
             <p className="text-white text-sm">Hang tight! Your work is being saved</p>
+            <p className="text-white text-sm">{uploadStatus}</p>
           </div>
           {/* Top Navigation */}
           <EditorTopNav discardDocument={discardDocument} blogMeta={blogMeta} />

@@ -4,7 +4,7 @@ const nextConfig = {
     serverActions: true,
   },
   images: {
-    domains: ["lh3.googleusercontent.com", "via.placeholder.com"],
+    domains: ["lh3.googleusercontent.com", "via.placeholder.com", "firebasestorage.googleapis.com"],
   },
 };
 

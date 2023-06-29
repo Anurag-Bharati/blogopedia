@@ -4,8 +4,10 @@ import { BiCog, BiLogOutCircle } from "react-icons/bi";
 
 import InfiniteLinearProgressBar from "./InfiniteLinearProgressBar";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const UserOptionsBar = ({ session, cardClassName = "", redirectToHome = true }) => {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const toggleOpen = () => setOpen(!open);
@@ -20,6 +22,8 @@ const UserOptionsBar = ({ session, cardClassName = "", redirectToHome = true }) 
     if (redirectToHome) await signOut({ redirect: true, callbackUrl: "http://localhost:3000" });
     else await signOut({ redirect: false });
   };
+
+  const handleSwitch = () => router.push("/profile");
 
   return (
     <div className="inline-flex flex-shrink-0 justify-center items-center cursor-pointer w-8 h-8 rounded-full overflow-hidden ">
@@ -39,7 +43,10 @@ const UserOptionsBar = ({ session, cardClassName = "", redirectToHome = true }) 
       >
         <div className="max-w-7xl text-sm md:text-base">
           <ul className="py-0">
-            <li className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2 border-b-2 border-[#222]">
+            <li
+              className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2 border-b-2 border-[#222]"
+              onClick={handleSwitch}
+            >
               <div className="flex items-center gap-2">
                 <Image src={session?.user?.image} height={64} width={64} className="object-cover w-10 h-10 z-10 rounded-full" alt="avatar" />
                 <div>

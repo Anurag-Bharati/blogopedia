@@ -1,9 +1,14 @@
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BiHeading, BiImageAdd } from "react-icons/bi";
-const EditorLeftAside = ({ headers, scrollIntoView, setImage, saving }) => {
+const EditorLeftAside = ({ headers, scrollIntoView, setImage, saving, coverLink, setCoverLink }) => {
   const [cover, setCover] = useState(null);
   const filePickerRef = useRef(null);
+
+  useEffect(() => {
+    if (coverLink) setCover(coverLink);
+  }, [coverLink]);
+
   const addImageToPost = (e) => {
     const reader = new FileReader();
     if (e.target.files[0]) {
@@ -17,6 +22,7 @@ const EditorLeftAside = ({ headers, scrollIntoView, setImage, saving }) => {
   const clearImage = () => {
     setCover(null);
     setImage(null);
+    setCoverLink(null);
   };
   return (
     <aside className="relative bg-[#000] w-[250px] h-full overflow-hidden">
@@ -27,13 +33,13 @@ const EditorLeftAside = ({ headers, scrollIntoView, setImage, saving }) => {
       ></div>
       <div className="flex flex-col h-full ">
         <div className="relative h-48 w-full bg-[#ffffff22] overflow-hidden">
-          {cover ? (
+          {cover || coverLink ? (
             <div>
               <span className="absolute text-white bg-red-500 text-sm rounded-md px-1 py-0 bottom-0 right-0 m-3 cursor-pointer" onClick={clearImage}>
                 {" "}
                 clear
               </span>
-              <Image height={192} width={250} src={cover} alt="Blog Cover" className="w-auto h-44 object-cover" />
+              <Image height={192} width={250} src={cover ?? coverLink} alt="Blog Cover" className="w-full h-44 object-cover" fallback={<div />} />
             </div>
           ) : (
             <div className=" h-full w-full p-7">

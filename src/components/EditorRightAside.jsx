@@ -1,5 +1,6 @@
 import { BiSearch, BiSolidTagX } from "react-icons/bi";
 import UserOptionsBar from "./UserOptionsBar";
+import { CiFaceSmile } from "react-icons/ci";
 
 const EditorRightAside = ({ tags = [], session, handleSave, saving, blogMeta }) => {
   return (
@@ -75,12 +76,30 @@ const EditorRightAside = ({ tags = [], session, handleSave, saving, blogMeta }) 
           </div>
         </div>
         <div className="flex flex-col gap-3 px-4 grow justify-end mb-6 text-sm">
-          <button className="border-2 border-gray-200 hover:bg-gray-200 hover:text-black text-white  py-2 px-4 rounded" onClick={() => handleSave()}>
-            Save as Draft
+          <p className="text-white text-base">Actions</p>
+
+          <button
+            className="border-2 border-gray-200 hover:bg-gray-200 hover:text-black text-white  py-2 px-4 rounded"
+            onClick={() => handleSave(blogMeta?.status ?? "draft", true)}
+          >
+            Save and Exit
           </button>
-          <button className="bg-[#a3e635] hover:bg-[#6b9c1c] text-white  py-2 px-4 rounded" onClick={() => handleSave("published")}>
-            Publish Now
-          </button>
+          {blogMeta?.status === "draft" ? (
+            <button className="bg-[#a3e635] hover:bg-[#6b9c1c] text-white  py-2 px-4 rounded" onClick={() => handleSave("published", true)}>
+              Publish Now
+            </button>
+          ) : (
+            <button
+              className="border-2 border-gray-200 hover:bg-gray-200 hover:text-black text-white  py-2 px-4 rounded"
+              onClick={() => handleSave()}
+            >
+              Mark as Draft
+            </button>
+          )}
+          <p className="text-xs  text-gray-400 flex gap-1 items-center justify-center">
+            <CiFaceSmile className="text-gray-400 " />
+            Changes are auto saved.
+          </p>
         </div>
       </div>
     </aside>

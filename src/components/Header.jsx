@@ -143,7 +143,7 @@ const Header = () => {
                               #business
                             </a>
                             <a href="#" className="py-1 border-2 border-[#35e6ab] rounded-full px-2 hover:bg-[#35e6ab] hover:text-[#111]">
-                              #life-style
+                              #lifestyle
                             </a>
                             <a href="#" className="py-1 border-2 border-[#e6e635] rounded-full px-2 hover:bg-[#e6e635] hover:text-[#111]">
                               #history
@@ -192,6 +192,7 @@ const Header = () => {
                         placeholder="File Name"
                         id="fileName"
                         type="text"
+                        autoComplete="off"
                         onFocus={() => setFormError(null)}
                       />
                       {formError && <p className="text-red-400 text-xs px-2 pb-1">{formError}</p>}
