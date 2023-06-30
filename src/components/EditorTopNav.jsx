@@ -39,12 +39,12 @@ const EditorTopNav = ({ discardDocument, blogMeta }) => {
       </div>
       <div className="flex justify-between items-center ">
         <div className="flex justify-start items-center text-sm">
-          <Image src="/assets/svgs/logo.svg" width={64} height={64} alt="Logo" className="h-10 py-2 invert" />
+          <Image src="/assets/svgs/logo.svg" width={64} height={64} alt="Logo" className="hidden sm:block h-10 py-2 invert" />
           <div className="px-3 py-2 cursor-pointer hover:bg-[#ffffff99] text-sm flex  gap-2">
             <Link href="/" className="text-center   focus:bg-white  hover:underline transition duration-300">
               Home
             </Link>
-            &gt;<span className="pointer-events-none text-cyan-400">Editor</span>
+            &gt;<span className="pointer-events-none text-cyan-400 hidden sm:inline">Editor</span>
           </div>
         </div>
         <div className="flex justify-end items-center text-sm gap-2">
@@ -55,7 +55,8 @@ const EditorTopNav = ({ discardDocument, blogMeta }) => {
               title={`Status: ${blogMeta?.status}`}
             >
               <CiCircleCheck className="w-3 h-3 text-green-400" />
-              <p className="text-green-400 uppercase ">{blogMeta?.status}</p>
+              <p className="text-green-400 uppercase hidden sm:block">{blogMeta?.status}</p>
+              <p className="text-green-400 uppercase block sm:hidden">{blogMeta?.status?.charAt(0)}</p>
             </span>
           )}
           {blogMeta?.status === "draft" && (
@@ -64,7 +65,8 @@ const EditorTopNav = ({ discardDocument, blogMeta }) => {
               title={`Status: ${blogMeta?.status}`}
             >
               <CiStickyNote className="w-3 h-3 text-cyan-400" />
-              <p className="text-cyan-400 uppercase ">{blogMeta?.status}</p>
+              <p className="text-cyan-400 uppercase hidden sm:block">{blogMeta?.status}</p>
+              <p className="text-cyan-400 uppercase block sm:hidden">{blogMeta?.status?.charAt(0)}</p>
             </span>
           )}
           {blogMeta?.status === "unsaved" && (
@@ -73,11 +75,12 @@ const EditorTopNav = ({ discardDocument, blogMeta }) => {
               title={`Status: ${blogMeta?.status}`}
             >
               <CiCircleInfo className="w-3 h-3 text-black" />
-              <p className=" uppercase ">{blogMeta?.status}</p>
+              <p className=" uppercase hidden sm:block">{blogMeta?.status}</p>
+              <p className=" uppercase block sm:hidden">{blogMeta?.status?.charAt(0)}</p>
             </span>
           )}
           <span
-            className={`flex gap-1 justify-center items-center  px-1 py-px border  rounded-full text-xs cursor-pointer ${
+            className={`flex gap-1 justify-center items-center  px-1 py-px border  rounded-full text-xs cursor-pointer whitespace-nowrap  ${
               blogMeta?.autosaving === "saving"
                 ? " border-amber-400 text-amber-400"
                 : blogMeta?.autosaving === "error"
@@ -92,9 +95,9 @@ const EditorTopNav = ({ discardDocument, blogMeta }) => {
             {blogMeta?.autosaving === "saving" && <CiSaveDown1 className="w-3 h-3 animate animate-spin" />}
             {blogMeta?.autosaving === "saved" && <CiCircleCheck className="w-3 h-3 " />}
             {blogMeta?.autosaving === "saving" || blogMeta?.autosaving === "error" ? (
-              <p className=" uppercase ">{blogMeta?.autosaving}</p>
+              <p className="uppercase">{blogMeta?.autosaving}</p>
             ) : (
-              <p className=" uppercase">{blogMeta?.lastSaved ?? blogMeta?.updatedAt}</p>
+              <p className="uppercase">{blogMeta?.lastSaved ?? blogMeta?.updatedAt}</p>
             )}
           </span>
           <div

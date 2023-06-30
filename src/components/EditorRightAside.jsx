@@ -4,7 +4,7 @@ import { CiFaceSmile } from "react-icons/ci";
 
 const EditorRightAside = ({ tags = [], session, handleSave, saving, blogMeta }) => {
   return (
-    <aside className="relative bg-[#000] w-[250px] h-full overflow-hidden">
+    <aside className="relative bg-[#000] min-w-[250px] w-[250px] md:min-w-min h-full overflow-hidden hidden sm:block">
       <div
         className={`absolute w-full h-full bg-[#000000ee] z-30 transition duration-300 ${
           saving ? "opacity-100" : "opacity-0 pointer-events-none"

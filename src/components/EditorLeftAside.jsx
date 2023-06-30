@@ -25,7 +25,7 @@ const EditorLeftAside = ({ headers, scrollIntoView, setImage, saving, coverLink,
     setCoverLink(null);
   };
   return (
-    <aside className="relative bg-[#000] w-[250px] h-full overflow-hidden">
+    <aside className="relative bg-[#000] w-[250px] h-full overflow-hidden hidden md:block">
       <div
         className={`absolute w-full h-full bg-[#000000ee] z-30 transition duration-300 ${
           saving ? "opacity-100" : "opacity-0 pointer-events-none"

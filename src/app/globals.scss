@@ -113,6 +113,7 @@ ul[aria-label="Pagination"] {
   margin: 0;
 }
 ul[aria-label="Pagination"] li {
+  white-space: nowrap;
   &.selected {
     a {
       background: var(--accent-col);
@@ -159,6 +160,16 @@ ul[aria-label="Pagination"] li {
       padding: 0 10px;
     }
   }
+}
+
+.glass-nav {
+  backdrop-filter: blur(10px);
+  -moz-backdrop-filter: blur(10px) !important;
+  -o-backdrop-filter: blur(10px) !important;
+  -ms-backdrop-filter: blur(10px) !important;
+  opacity: 1 !important;
+  transition: all ease 300ms;
+  border-bottom: 1px solid #ffffff11;
 }
 
 @keyframes shimmer {
