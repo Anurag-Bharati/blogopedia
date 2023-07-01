@@ -1,9 +1,9 @@
 import Carousel from "./Carousel";
 
-const Hero = () => {
+const Hero = ({ recentBlogs }) => {
   return (
     <section className="relative isolate text-white overflow-hidden">
-      <Carousel />
+      <Carousel recentBlogs={recentBlogs} />
     </section>
   );
 };

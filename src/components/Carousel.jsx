@@ -1,32 +1,12 @@
-"use client";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, A11y, Keyboard } from "swiper";
 import "swiper/css";
 import "swiper/css/keyboard";
 import "swiper/css/a11y";
 import Image from "next/image";
-import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
-import { firestore } from "@/config/firebase/firebase";
-import { useEffect, useMemo, useState } from "react";
 import Moment from "react-moment";
 
-const Carousel = () => {
-  const [recentBlogs, setRecentBlogs] = useState([]);
-  const collectionRef = useMemo(() => collection(firestore, "blogs"), []);
-  const qRef = useMemo(() => query(collectionRef, where("status", "==", "published"), orderBy("createdAt", "desc"), limit(5)), [collectionRef]);
-
-  useEffect(() => {
-    const getRecentBlogs = async () => {
-      try {
-        const snapshot = await getDocs(qRef);
-        setRecentBlogs(snapshot?.docs?.map((doc) => ({ id: doc?.id, ...doc?.data() } ?? [])));
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getRecentBlogs();
-  }, [qRef]);
-
+const Carousel = ({ recentBlogs }) => {
   const initSwitch = (e) => console.log(e.target.offsetParent.id);
   return (
     <div className="color-auto">
