@@ -38,7 +38,7 @@ const ContentCard = ({ varient = "blog", data, hideBlog }) => {
               })}
               <span className=" px-3 py-1 flex gap-2 items-center">
                 <BiTime />
-                <p>{data?.readTime}m read</p>
+                <p>{data?.readTime} min read</p>
               </span>
             </div>
             <div className="relative flex-[0_0_0px] justify-end items-center flex gap-4">

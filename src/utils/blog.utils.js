@@ -13,9 +13,14 @@ export const calculateReadTime = (rawContentState) => {
   return minutes;
 };
 
-export const scrollIntoView = (e) =>
-  document.querySelector(`[data-offset-key="${e}-0-0"]`).scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-
+export function scrollIntoView(e, callback = null, delay = 500) {
+  if (callback) callback?.call();
+  let timeout = null;
+  timeout = setTimeout(() => {
+    document.querySelector(`[data-offset-key="${e}-0-0"]`).scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    clearTimeout(timeout);
+  }, delay);
+}
 export const pullHastags = (editorState) => {
   const tempHastags = [];
   editorState

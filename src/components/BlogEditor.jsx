@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import Image from "next/image";
 import moment from "moment";
 
@@ -116,6 +116,7 @@ const BlogEditor = ({ id, useTLDR = false }) => {
   // Log the blog data
   useEffect(() => {
     if (!snapshot) return;
+    else if (!snapshot.exists()) return notFound();
     setBlogStatus(snapshot?.data()?.status ?? blogStatus ?? "draft");
     setCoverImage(snapshot?.data()?.cover ?? dummyImageUrl);
     setBlogMeta((prev) => ({

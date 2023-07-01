@@ -62,7 +62,7 @@ export default function Page() {
         </div>
       </nav>
       <main>
-        <section className="relative flex flex-col w-full pb-20 overflow-hidden isolate min-h-[60vh] md:min-h-screen ">
+        <section className="relative flex flex-col w-full overflow-hidden isolate min-h-[60vh] md:min-h-screen ">
           <div className="relative w-full h-full">
             <div className="absolute z-10 h-[155px] bottom-0 w-full  bg-gradient-to-t from-black to-transparent"></div>
             <Image

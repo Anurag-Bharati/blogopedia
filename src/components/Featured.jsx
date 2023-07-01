@@ -42,20 +42,21 @@ const Featured = ({ blogs }) => {
             <span className="h-6 w-32 md:w-64 rounded-full shimmer" />
           </div>
         )}
-        <div className="mb-4  self-end">
+
+        {featuredBlogs?.length === 0 && <ContentCardShimmer />}
+        <Blogs currentItems={currentItems} hideBlog={hideBlog} />
+        <div className="mb-4">
           <ReactPaginate
             breakLabel="..."
             nextLabel="next >"
             onPageChange={handlePageClick}
             pageRangeDisplayed={1}
             pageCount={pageCount}
-            previousLabel="< previous"
+            previousLabel="< prev"
             renderOnZeroPageCount={null}
             marginPagesDisplayed={1}
           />
         </div>
-        {featuredBlogs?.length === 0 && <ContentCardShimmer />}
-        <Blogs currentItems={currentItems} hideBlog={hideBlog} />
       </div>
       {featuredBlogs?.length === 0 && <p className="text-center">No blogs found</p>}
     </section>
