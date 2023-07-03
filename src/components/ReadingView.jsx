@@ -13,12 +13,14 @@ import { firestore } from "@/config/firebase/firebase";
 import Image from "next/image";
 import Moment from "react-moment";
 import { getCleanPlainText, scrollIntoView } from "@/utils/blog.utils";
+import BlogopediaUtterance from "./BlogopediaUtterance";
 
 const ReadingView = ({ id, blog }) => {
   const { data: session, status } = useSession();
   const [state, setState] = useState({ hideAside: false });
 
   const docRef = useMemo(() => doc(firestore, "blogs", id), [id]);
+  const ttsText = useMemo(() => getCleanPlainText(blog?.content), [blog?.content]);
 
   const [editorState] = useState(EditorState.createWithContent(convertFromRaw(blog?.content)));
   const handlehideAside = () => setState({ ...state, hideAside: true });
@@ -73,12 +75,8 @@ const ReadingView = ({ id, blog }) => {
                 </div>
               </div>
               <div className="flex gap-4 items-center justify-between  px-[5%] sm:px-0">
-                <div className="flex gap-1 items-center">{/* TTS Player here */}</div>
-                <div className="flex gap-1 items-center">
-                  <span className="text-2xl text-pink-600 cursor-pointer">
-                    <BiHeart />
-                  </span>
-                  <span className="text-lg text-gray-500">{blog?.likes}</span>
+                <div className="flex gap-1 items-center w-full pb-3">
+                  <BlogopediaUtterance text={ttsText} />
                 </div>
               </div>
             </header>
