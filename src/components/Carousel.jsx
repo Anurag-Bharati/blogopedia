@@ -5,6 +5,7 @@ import "swiper/css/keyboard";
 import "swiper/css/a11y";
 import Image from "next/image";
 import Moment from "react-moment";
+import Link from "next/link";
 
 const Carousel = ({ recentBlogs }) => {
   const initSwitch = (e) => console.log(e.target.offsetParent.id);
@@ -75,7 +76,7 @@ export default Carousel;
 const CarouselItem = ({ blog = null, initSwitch }) => {
   return (
     <>
-      <div className="absolute w-full h-full z-10 flex flex-col justify-center items-center px-4" id="1">
+      <Link href={`/view?id=${blog?.id}`} className="absolute w-full h-full z-10 flex flex-col justify-center items-center px-4" id="1">
         <h1
           className="text-2xl bg-[#ffffff55] rounded-full px-3 py-2 max-w-full truncate mt-5 cursor-pointer min-w-[400px] text-center"
           onClick={blog ? initSwitch : null}
@@ -85,7 +86,7 @@ const CarouselItem = ({ blog = null, initSwitch }) => {
         <p className="truncate text-sm  bg-[#ffffff55] rounded-b-full  px-5 pb-3 inline-block cursor-pointer" onClick={blog ? initSwitch : null}>
           By {blog ? blog.author?.name : "John Doe"} • {blog ? <Moment fromNow>{blog?.createdAt?.seconds * 1000}</Moment> : "2 days ago"}
         </p>
-      </div>
+      </Link>
       <Image
         src={blog?.coverImage ?? "/assets/images/hero-background.jpg"}
         className="object-cover w-full h-full pointer-events-none -hue-rotate-15"

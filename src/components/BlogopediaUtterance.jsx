@@ -82,39 +82,44 @@ function BlogopediaUtterance({ text = null }) {
         <span className="text-xs">powered by</span>
         <Image src="/assets/svgs/logo-full.svg" alt="Blogopedia" width={48} height={48} className=" invert h-12 w-12" />
       </div>
+
       <div className="flex justify-center items-center gap-2 pb-2">
         <FaHeadphonesAlt className="text-xl text-gray-500" />
         <span className="text-lg text-gray-500 uppercase font-medium tracking-wide">Play this Blog</span>
       </div>
-      <div className="flex items-center w-full ">
-        <button className="p-2 rounded-full  text-gray-500" onClick={handlePause} disabled={!isPlaying}>
-          <FaPause />
-        </button>
-        <button className="p-2 rounded-full  text-gray-500" onClick={handlePlay} disabled={isPlaying}>
-          <FaPlay />
-        </button>
-        <div className="w-full  h-4 bg-gray-300 rounded-md">
-          <div className="h-full bg-blue-500  rounded-md transition-all " style={{ width: `${progress}%` }}></div>
+      <div className="flex items-center md:flex-row flex-col">
+        <div className="flex items-center w-full">
+          <button className="p-2 rounded-full  text-gray-500" onClick={handlePause} disabled={!isPlaying}>
+            <FaPause />
+          </button>
+          <button className="p-2 rounded-full  text-gray-500" onClick={handlePlay} disabled={isPlaying}>
+            <FaPlay />
+          </button>
+          <div className="w-full  h-4 bg-gray-300 rounded-md">
+            <div className="h-full bg-blue-500  rounded-md transition-all " style={{ width: `${progress}%` }}></div>
+          </div>
+          <button className="p-2 rounded-full  text-gray-500" onClick={handleStop}>
+            <FaStop />
+          </button>
         </div>
-        <button className="p-2 rounded-full  text-gray-500" onClick={handleStop}>
-          <FaStop />
-        </button>
-        <div className="p-2 text-xl text-gray-500">
-          {volume === 0 && <BiSolidVolumeMute />}
-          {volume > 0 && volume <= 0.3 && <BiSolidVolume />}
-          {volume > 0.3 && volume <= 0.7 && <BiSolidVolumeLow />}
-          {volume > 0.7 && <BiSolidVolumeFull />}
+        <div className="flex w-fill">
+          <div className="p-2 text-xl text-gray-500">
+            {volume === 0 && <BiSolidVolumeMute />}
+            {volume > 0 && volume <= 0.3 && <BiSolidVolume />}
+            {volume > 0.3 && volume <= 0.7 && <BiSolidVolumeLow />}
+            {volume > 0.7 && <BiSolidVolumeFull />}
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            value={volume}
+            onChange={handleVolumeChange}
+            className="flex-grow mr-4 "
+            disabled={isPlaying}
+          />
         </div>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          value={volume}
-          onChange={handleVolumeChange}
-          className="flex-grow mr-4 "
-          disabled={isPlaying}
-        />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { BiBlock, BiBookOpen, BiPurchaseTag, BiShare, BiTime } from "react-icons
 import Moment from "react-moment";
 import ShareCard from "./ShareCard";
 import ConfirmCard from "./ConfirmCard";
+import Link from "next/link";
 
 const ContentCard = ({ varient = "blog", data, hideBlog }) => {
   const [isModalOpen, setIsModalOpen] = useState({ share: false, hide: false });
@@ -12,7 +13,7 @@ const ContentCard = ({ varient = "blog", data, hideBlog }) => {
   return (
     <div className="relative flex pb-6 justify-center">
       <div className={`break-words  w-fit ${varient === "article" ? "order-2" : ""}`}>
-        <a href="#" title="">
+        <Link href={`/view?id=${data?.id}`} title={data?.title}>
           <h1 className="pb-2 text-xl sm:text-2xl whitespace-wrap">{data?.title}</h1>
           {varient === "blog" && (
             <>
@@ -22,7 +23,7 @@ const ContentCard = ({ varient = "blog", data, hideBlog }) => {
             </>
           )}
           <p className={`${varient === "blog" ? "line-clamp-3" : "line-clamp-4"}`}>{data?.tldr}</p>
-        </a>
+        </Link>
         <div className="py-6">
           <div className="flex justify-between">
             <div className="flex-[1_0_auto] items-center flex gap-1">
