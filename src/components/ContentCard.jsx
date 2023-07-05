@@ -12,7 +12,7 @@ const ContentCard = ({ varient = "blog", data, hideBlog }) => {
   const toggleHideModal = () => setIsModalOpen({ share: false, hide: !isModalOpen.hide });
   return (
     <div className="relative flex pb-6 justify-center">
-      <div className={`break-words  w-fit ${varient === "article" ? "order-2" : ""}`}>
+      <div className={`break-words  w-full  ${varient === "article" ? "order-2" : ""}`}>
         <Link href={`/view?id=${data?.id}`} title={data?.title}>
           <h1 className="pb-2 text-xl sm:text-2xl whitespace-wrap">{data?.title}</h1>
           {varient === "blog" && (

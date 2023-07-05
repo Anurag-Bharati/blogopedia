@@ -96,7 +96,7 @@ function BlogopediaUtterance({ text = null }) {
             <FaPlay />
           </button>
           <div className="w-full  h-4 bg-gray-300 rounded-md">
-            <div className="h-full bg-blue-500  rounded-md transition-all " style={{ width: `${progress}%` }}></div>
+            <div className="h-full bg-blue-500  rounded-md transition-all duration-1000  ease-in-out" style={{ width: `${progress}%` }}></div>
           </div>
           <button className="p-2 rounded-full  text-gray-500" onClick={handleStop}>
             <FaStop />

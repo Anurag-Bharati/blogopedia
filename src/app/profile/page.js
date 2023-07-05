@@ -132,9 +132,9 @@ export default function Page() {
                 <span
                   title="Filter by draft"
                   className={`w-7 h-7  bg-[#222] rounded-full transition ${
-                    filter === 0 ? "bg-[#2dcdff] text-black" : ""
+                    filter === 1 ? "bg-[#2dcdff] text-black" : ""
                   } cursor-pointer select-none grid place-items-center -order-2 sm:order-1`}
-                  onClick={() => setFilter(filter === 0 ? -1 : 0)}
+                  onClick={() => setFilter(filter === 1 ? -1 : 1)}
                 >
                   <BiDetail className="inline-block align-middle" />
                 </span>
@@ -143,9 +143,9 @@ export default function Page() {
                 <span
                   title="Filter by published"
                   className={`min-w-[28px] h-7 bg-[#222] rounded-full transition ${
-                    filter === 1 ? "bg-[#2dcdff] text-black" : ""
+                    filter === 0 ? "bg-[#2dcdff] text-black" : ""
                   } cursor-pointer select-none grid place-items-center -order-3 sm:order-2`}
-                  onClick={() => setFilter(filter === 1 ? -1 : 1)}
+                  onClick={() => setFilter(filter === 0 ? -1 : 0)}
                 >
                   <BiCheckCircle className="inline-block align-middle " />
                 </span>

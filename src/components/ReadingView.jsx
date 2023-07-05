@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
-import { BiBookOpen, BiHeading, BiHeart, BiMenu, BiShare, BiSolidHeart } from "react-icons/bi";
+import { BiBookOpen, BiHeading, BiHeart, BiMenu, BiShare, BiSolidHeart, BiUser } from "react-icons/bi";
 
 import { EditorState, convertFromRaw } from "draft-js";
 // SSR is disabled for Editor component since it uses draft-js which is not compatible with SSR
@@ -66,7 +66,7 @@ const ReadingView = ({ id, blog }) => {
           className="relative bg-white grow flex flex-col h-full transition-all ease-in-out  duration-500 overflow-y-scroll override-scroll-bar-all "
           style={{ marginLeft: state.hideAside ? "0" : "max( 250px, 20%)" }}
         >
-          <div className=" z-10 w-full h-full">
+          <div className=" z-10 w-full h-fit">
             <div className="fixed top-2 ml-2 p-2 flex gap-2 items-center">
               <button className=" text-black" onClick={() => setState({ ...state, hideAside: !state.hideAside })}>
                 <BiMenu className="w-6 h-6" />
@@ -77,7 +77,12 @@ const ReadingView = ({ id, blog }) => {
               &gt;<span className="text-sm text-gray-400">Blog</span>
             </div>
             <div className="fixed top-4 right-4 ">
-              <UserOptionsBar session={session} cardClassName="!top-10 !right-0" />
+              {status === "authenticated" && <UserOptionsBar session={session} cardClassName="!top-10 !right-0" />}
+              {status !== "authenticated" && (
+                <Link passHref={true} href={`/auth?callbackUrl=/view?id=${id}`}>
+                  <BiUser className="h-6 w-6" />
+                </Link>
+              )}
             </div>
           </div>
 

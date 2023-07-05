@@ -58,14 +58,14 @@ const EditorRightAside = ({ tags = [], session, handleSave, saving, blogMeta }) 
           <p className="text-white">Metadata</p>
           <div className="p-2 rounded-md  bg-[#111] mt-2 ">
             <div className="overflow-y-scroll h-full w-full truncate override-scroll-bar-all flex  flex-col items-start content-start text-white text-sm">
-              <p className="">
+              <p className="truncate max-w-[200px]">
                 Title: <span className="text-gray-200">{blogMeta?.title}</span>
               </p>
               <p className="pb-1">
                 Readtime: <span className="text-gray-200">{blogMeta?.readTime} min</span>
               </p>
 
-              <p className="">
+              <p className="truncate max-w-[200px]">
                 Filename: <span className="text-gray-200">{blogMeta?.filename}</span>
               </p>
               <p className="">
