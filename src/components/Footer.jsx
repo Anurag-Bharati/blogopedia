@@ -1,14 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 import { GrFacebook, GrLinkedin, GrTwitter } from "react-icons/gr";
+import React from "react";
 
 const Footer = () => {
   return (
     <footer className="px-4 pt-16 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8">
       <div className="grid gap-10 row-gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2">
-          <Link href="/" aria-label="Go home" title="Blogopedia" className="inline-flex items-center">
+          <Link href="/" aria-label="Go home" title="Blogopedia" className="inline-flex items-center" passHref={true}>
             <Image src="/assets/svgs/logo-full.svg" width={100} height={40} alt="blogopedia" />
             <span className="ml-2 mt-2 text-xs tracking-wide text-[#999] uppercase">By Anurag</span>
           </Link>

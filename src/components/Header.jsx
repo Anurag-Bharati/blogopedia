@@ -1,43 +1,80 @@
 "use client";
+
 import Link from "next/link";
 import { useState } from "react";
-import { BiChevronDown, BiPlus, BiRightArrowAlt, BiSearch, BiUser, BiX } from "react-icons/bi";
-import { GrArticle, GrCopy } from "react-icons/gr";
-import data from "../config/data/categories.data.json";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 
+import { BiChevronDown, BiLoader, BiPlus, BiRightArrowAlt, BiUser } from "react-icons/bi";
+
+import NiceSearchBar from "./NiceSearchBar";
+import UserOptionsBar from "./UserOptionsBar";
+import AvatarShimmer from "./AvatarShimmer";
+
+import data from "../config/data/categories.data.json";
+
+import { firestore } from "../config/firebase/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+
 const Header = () => {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [state, setState] = useState({ loading: false });
   const [showBooks, setShowCourses] = useState(false);
   const [write, setWrite] = useState(false);
   const toggleWrite = () => setWrite(!write);
+  const [formError, setFormError] = useState(null);
+
   var hideDelay;
+
   const showAllBooks = () => {
     clearTimeout(hideDelay);
     setShowCourses(true);
   };
+
   const toggleShowBooks = () => setShowCourses(!showBooks);
   const hideAllBooks = () => (hideDelay = setTimeout(() => setShowCourses(false), 300));
-  const handleSwitch = (slug) => {
-    setShowCourses(false);
-  };
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showResults, setShowResults] = useState(false);
+  const handleSwitch = (slug) => setShowCourses(false);
 
-  const handleSearchChange = (event) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-    setShowResults(query !== "");
+  const createDocument = async (e) => {
+    e.preventDefault();
+    if (state.loading) return;
+    var fileName = e.target.fileName.value;
+    if (!fileName || fileName.trim() === "") return setFormError("Title cannot be empty");
+    if (status !== "authenticated") return;
+    setState({ loading: true });
+    const blogsCollection = collection(firestore, "blogs");
+
+    try {
+      const addedDocRef = await addDoc(blogsCollection, {
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        author: session.user,
+        fileName: fileName.trim(),
+        status: "draft",
+        likes: 0,
+        views: 0,
+        tags: [],
+        title: fileName.trim(),
+        toc: [],
+        cover: null,
+        readTime: null,
+      });
+      router.push(`/editor/${addedDocRef.id}`);
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    } finally {
+      setState({ loading: false });
+    }
   };
-  const handleClearSearch = () => {
-    setSearchQuery("");
-  };
-  const filteredStuff = data.categories.filter((x) => x.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
   return (
     <header id="header" className="relative w-full mt-[90px]">
       {/* Wrapper for top-header */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-black border-b-[1px] border-[#222]">
         <div className="flex py-3 md:py-5 px-6 md:px-8 mx-auto max-w-[1280px]">
-          <Link href="/" scroll={false} className="inline-block py-1 whitespace-nowrap mr-2 w-40 text-center my-auto z-10">
+          <Link passHref={true} href="/" scroll={false} className="inline-block py-1 whitespace-nowrap mr-2 w-40 text-center my-auto z-10">
             <Image src="/assets/svgs/logo-full.svg" width={120} height={120} alt="Blogopedia logo; varient: full" />
           </Link>
           <div className="flex basis-full justify-center">
@@ -50,9 +87,9 @@ const Header = () => {
                 onClick={toggleShowBooks}
               >
                 <li className="relative">
-                  <a className="flex items-center gap-2 px-2 py-2 text-md text-white pointer-events-none" type="button">
+                  <a className="flex items-center gap-2 px-2 py-2 text-md  pointer-events-none" type="button">
                     <p className=" text-sm md:text-base">Topics</p>
-                    <BiChevronDown className={`text-2xl text-white transition ${showBooks ? "rotate-90" : "rotate-0"}`} />
+                    <BiChevronDown className={`text-2xl  transition ${showBooks ? "rotate-90" : "rotate-0"}`} />
                   </a>
                   <div
                     className={`absolute z-[-1] pt-6 transition duration-500 ease-out hidden md:block cursor-default ${
@@ -61,7 +98,7 @@ const Header = () => {
                   >
                     <div className="relative w-auto  bg-black border-[1px] border-[#222]">
                       <div className="flex w-auto">
-                        <ul className="py-2 text-md md:text-sm text-white max-h-72 overflow-y-scroll nice-scroll-bar w-80">
+                        <ul className="py-2 text-md md:text-sm  max-h-72 overflow-y-scroll nice-scroll-bar w-80">
                           {data.categories.map((e, i) => (
                             <li key={`data:${i}:desktop`}>
                               <a href="#" className="block px-4 py-4 md:py-2 hover:bg-[#222]">
@@ -70,13 +107,18 @@ const Header = () => {
                             </li>
                           ))}
                           <div className="border-b-[1px] border-[#222] h-px my-2"></div>
-                          <Link href="/#" className="inline-flex flex-row py-2 opacity-100 mx-3 px-3 items-center hover:text-white" type="button">
-                            <p className="text-md uppercase text-white pointer-events-none">Show More</p>
+                          <Link
+                            passHref={true}
+                            href="/#"
+                            className="inline-flex flex-row py-2 opacity-100 mx-3 px-3 items-center hover:text-white"
+                            type="button"
+                          >
+                            <p className="text-md uppercase  pointer-events-none">Show More</p>
                             <BiRightArrowAlt className="text-md ml-1 font-light pointer-events-none" />
                           </Link>
                         </ul>
                         <div className="flex flex-col p-4 gap-4">
-                          <h2 className="text-white">Filters</h2>
+                          <h2>Filters</h2>
                           <div className="inline-flex flex-wrap text-md md:text-sm text-gray-700 p-0 gap-4 w-96 h-fit whitespace-nowrap justify-start">
                             <a href="#" className="py-1 bg-zinc-100 rounded-full px-2 hover:brightness-75">
                               Popular
@@ -92,7 +134,7 @@ const Header = () => {
                               Featured
                             </a>
                           </div>
-                          <h2 className="text-white">Hastags</h2>
+                          <h2>Hastags</h2>
                           <div className="inline-flex flex-wrap text-md md:text-sm text-white p-0 gap-4 w-96 h-fit whitespace-nowrap justify-start">
                             <a href="#" className="py-1 border-2 border-[#2DCDFF] rounded-full px-2  hover:bg-[#2DCDFF] hover:text-[#111]">
                               #technology
@@ -101,7 +143,7 @@ const Header = () => {
                               #business
                             </a>
                             <a href="#" className="py-1 border-2 border-[#35e6ab] rounded-full px-2 hover:bg-[#35e6ab] hover:text-[#111]">
-                              #life-style
+                              #lifestyle
                             </a>
                             <a href="#" className="py-1 border-2 border-[#e6e635] rounded-full px-2 hover:bg-[#e6e635] hover:text-[#111]">
                               #history
@@ -119,113 +161,76 @@ const Header = () => {
                   </div>
                 </li>
               </ul>
-              <Link href="/#" className="z-10 mr-2 text-white">
+              <Link passHref={true} href="/#" className="z-10 mr-2">
                 <p className=" text-sm md:text-base">Home</p>
               </Link>
-              <Link href="/#featured" className="z-10 mr-2 text-white">
+              <Link passHref={true} href="/#featured" className="z-10 mr-2 ">
                 <p className=" text-sm md:text-base">Featured</p>
               </Link>
-
-              <form className="relative hidden md:block flex-grow z-10 max-w-sm ml-auto">
-                <div className="relative">
-                  <input
-                    className="block w-full px-3 py-2 pl-10 pr-28 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate"
-                    placeholder="What you want to read?"
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    required
-                  />
-                  <div className="absolute p-2 right-0 top-0 bottom-0 mr-4">
-                    <div className="border border-[#999] text-[#999] w-full h-full flex flex-col justify-center px-2 text-sm rounded-md">
-                      CTRL + K
-                    </div>
-                  </div>
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 ">
-                    {searchQuery !== "" ? (
-                      <BiX className="text-xl text-[#999] cursor-pointer z10" onClick={handleClearSearch} />
-                    ) : (
-                      <BiSearch className="text-xl text-[#999]" />
-                    )}
-                  </div>
-                </div>
-                {searchQuery !== "" && (
-                  <div className="absolute top-32 w-full left-0 md:left-auto  md:top-16 md:w-[350px]  border border-[#222]">
-                    <div className="max-w-7xl text-sm md:text-base mx-auto bg-black">
-                      <ul className="py-2">
-                        {filteredStuff.length > 0 ? (
-                          filteredStuff.map((book) => (
-                            <li key={book.name} className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white">
-                              {book.name}
-                            </li>
-                          ))
-                        ) : (
-                          <li className="px-4 py-2 text-white">No item found</li>
-                        )}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </form>
-
-              <div className="flex gap-4 justify-evenly ml-6 text-white">
+              <NiceSearchBar className="relative hidden md:block flex-grow z-10 max-w-sm ml-auto" />
+              <div className="flex gap-4 justify-evenly ml-6 ">
                 <span
                   className="relative inline-flex gap-2 justify-center items-center border-2 rounded-full px-3 py-1 cursor-pointer hover:bg-white hover:text-black transition duration-300 ease-in-out"
                   onClick={toggleWrite}
                 >
                   <p className="">Write</p>
                   <BiPlus className="h-5 w-5" />
-
-                  <div
-                    className={`absolute top-32 w-fit left-0 md:left-auto md:top-14  border border-[#222] whitespace-nowrap bg-black z-[-1] transition ease-in-out duration-300 ${
-                      write ? "translate-y-0" : "-translate-y-full"
-                    }`}
-                    onMouseLeave={() => setWrite(false)}
-                  >
-                    <div className="max-w-7xl text-sm md:text-base">
-                      <ul className="py-2">
-                        <li className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2">
-                          <GrCopy className="invert" />
-                          <p>Create a Blog</p>
-                        </li>
-                        <li className="px-4 py-2 hover:bg-[#222] cursor-pointer text-white flex items-center gap-2">
-                          <GrArticle className="invert" />
-                          <p>Write an Article</p>
-                        </li>
-                      </ul>
-                    </div>
+                </span>
+                <div
+                  className={`absolute top-12 w-fit left-0 md:left-auto md:top-[90px]  border rounded-b-xl border-[#222] whitespace-nowrap bg-black z-[-1] transition ease-in-out duration-300 ${
+                    write ? "translate-y-0" : "-translate-y-full"
+                  }`}
+                  // onMouseLeave={() => setWrite(false)}
+                >
+                  <div className="max-w-7xl text-sm md:text-base">
+                    <form className="px-3 pt-2 pb-3 flex flex-col gap-1 w-min" onSubmit={createDocument}>
+                      <input
+                        disabled={state.loading}
+                        className={`block min-w-[180px] w-full p-2 pl-3 pr-3 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate ${
+                          formError ? "border-2 border-red-400" : "border-0"
+                        }  }`}
+                        placeholder="File Name"
+                        id="fileName"
+                        type="text"
+                        autoComplete="off"
+                        onFocus={() => setFormError(null)}
+                      />
+                      {formError && <p className="text-red-400 text-xs px-2 pb-1">{formError}</p>}
+                      <button
+                        type="submit"
+                        disabled={state.loading}
+                        className="text-white text-md bg-cyan-700 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-cyan-300  rounded-lg  w-full py-1.5 text-center dark:bg-cyan-400 dark:hover:bg-cyan-500 dark:focus:ring-cyan-800 font-medium mt-1"
+                      >
+                        {state.loading ? (
+                          <div className="flex justify-center items-center gap-2">
+                            <BiLoader className="animate-spin h-5 w-5" />
+                            Please wait
+                          </div>
+                        ) : (
+                          "Create Blog"
+                        )}
+                      </button>
+                    </form>
                   </div>
-                </span>
-
-                <span className="inline-flex justify-center items-center cursor-pointer z-10">
-                  <BiUser className="h-6 w-6" />
-                </span>
+                </div>
               </div>
+              {status === "loading" && <AvatarShimmer className="h-8 w-8 cursor-wait" />}
+              {status === "authenticated" && <UserOptionsBar session={session} />}
+              {status === "unauthenticated" && (
+                <Link
+                  passHref={true}
+                  href="/auth"
+                  className="relative h-8 w-8 inline-flex justify-center items-center cursor-pointer z-10  border-2 border-white rounded-full"
+                >
+                  <BiUser className="h-6 w-6" />
+                </Link>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <div className="flex gap-4 mt-[90px]  px-4 pb-2  max-w-md  md:hidden mx-auto">
-        <form className="flex-1">
-          <div className="relative">
-            <input
-              className="block w-full px-3 py-2 pl-10 pr-28 bg-[#222] rounded-xl text-[#ddd] placeholder:text-[#999] truncate"
-              placeholder="What you want to read?"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              required
-            />
-            <div className="absolute p-2 right-0 top-0 bottom-0 mr-4">
-              <div className="border border-[#999] text-[#999] w-full h-full flex flex-col justify-center px-2 text-sm rounded-md">CTRL + K</div>
-            </div>
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 ">
-              {searchQuery !== "" ? (
-                <BiX className="text-xl text-[#999] cursor-pointer z10" onClick={handleClearSearch} />
-              ) : (
-                <BiSearch className="text-xl text-[#999]" />
-              )}
-            </div>
-          </div>
-        </form>
+      <div className="flex gap-4 mt-[90px]  px-4 pb-4  max-w-md  md:hidden mx-auto">
+        <NiceSearchBar className="flex-1" />
       </div>
       {/* RESPONSIVE */}
       <div
@@ -250,6 +255,7 @@ const Header = () => {
           <div className="border-b-[1px] border-[#eaeaea] h-px my-2"></div>
           <div className="py-2">
             <Link
+              passHref={true}
               href="/all-courses"
               className="flex flex-row py-2 opacity-100 mx-3 px-3 items-center rounded-md primary-button-ring hover:text-white"
               type="button"

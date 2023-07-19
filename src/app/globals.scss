@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #111;
+  --background: #fff;
+  --accent-col: #2dcdff;
+  --yellow-col: #e6e635;
+  --green-col: #a3e635;
+  --cyan-col: #35e6ab;
+  --sky-col: #27f3f3;
+  --pink-col: #eb2fab;
+  --bg-col-light: #eee;
+}
+
+html {
+  scroll-behavior: smooth !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground: #fff;
+    --background: #000;
+    --cream: #fefbea;
+    --accent-col: #2dcdff;
+    --yellow-col: #e6e635;
+    --green-col: #a3e635;
+    --cyan-col: #35e6ab;
+    --sky-col: #27f3f3;
+    --pink-col: #eb2fab;
+    --bg-col-light: #222;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.fill-auto {
+  fill: var(--background) !important;
+}
+.color-auto {
+  color: var(--foreground);
+}
+
+body::-webkit-scrollbar {
+  width: 0.25rem !important;
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--bg-col-light);
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--accent-col) !important;
+  border-radius: 10px !important;
+}
+
+.nice-scroll-bar::-webkit-scrollbar {
+  width: 0.25rem !important;
+}
+
+.nice-scroll-bar::-webkit-scrollbar-track {
+  background: var(--bg-col-light);
+}
+
+.nice-scroll-bar::-webkit-scrollbar-thumb {
+  background: var(--accent-col) !important;
+  border-radius: 10px !important;
+}
+
+.override-scroll-bar ul::-webkit-scrollbar {
+  width: 0.25rem !important;
+}
+
+.override-scroll-bar ul::-webkit-scrollbar-track {
+  background: #eee;
+}
+
+.override-scroll-bar ul::-webkit-scrollbar-thumb {
+  background: var(--accent-col) !important;
+  border-radius: 10px !important;
+}
+.override-scroll-bar-all::-webkit-scrollbar {
+  width: 0.25rem !important;
+}
+.override-scroll-bar-all::-webkit-scrollbar-track {
+  background: transparent;
+}
+.override-scroll-bar-all::-webkit-scrollbar-thumb {
+  background: #ffffff55 !important;
+  border-radius: 10px !important;
+}
+
+.shimmer {
+  position: relative;
+  background: #3a3a3a;
+  background-image: linear-gradient(to right, #3a3a3a 0%, #3f3f3f 10%, #4a4a4a 20%, #3f3f3f 30%, #3a3a3a 50%, #3a3a3a 100%);
+  background-repeat: no-repeat;
+  background-size: 800px 100%;
+  animation: shimmer 1s infinite ease-in-out forwards;
+  -webkit-animation: shimmer 1s infinite ease-in-out forwards;
+}
+
+ul[aria-label="Pagination"] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  padding: 10px;
+  margin: 0;
+}
+ul[aria-label="Pagination"] li {
+  white-space: nowrap;
+  &.selected {
+    a {
+      background: var(--accent-col);
+      color: var(--background);
+    }
+  }
+  margin: 0 5px;
+  &:last-child {
+    margin-right: 0;
+  }
+  // disable text selection
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-col-light);
+    color: var(--foreground);
+    transition: all 0.3s ease-in-out;
+    vertical-align: middle;
+    &:hover {
+      background: var(--accent-col);
+      color: var(--background);
+    }
+    &[rel="prev"] {
+      display: flex;
+      align-items: center;
+      border-radius: 20px;
+      padding: 0 10px;
+    }
+    &[rel="next"] {
+      display: flex;
+      align-items: center;
+      border-radius: 20px;
+      padding: 0 10px;
+    }
+  }
+}
+
+.glass-nav {
+  backdrop-filter: blur(10px);
+  -moz-backdrop-filter: blur(10px) !important;
+  -o-backdrop-filter: blur(10px) !important;
+  -ms-backdrop-filter: blur(10px) !important;
+  opacity: 1 !important;
+  transition: all ease 300ms;
+  border-bottom: 1px solid #ffffff11;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+@-webkit-keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
