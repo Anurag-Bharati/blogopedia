@@ -14,11 +14,11 @@ import { EmailShareButton, FacebookMessengerShareButton, FacebookShareButton, Tw
 
 const ShareCard = ({ setIsModalOpen, isModalOpen, id }) => {
   const [state, setState] = useState({ copied: false });
-
   const handleCopy = () => {
     navigator.clipboard.writeText(linkField.current.value);
     setState({ copied: true });
   };
+  const urlLink = `${window.location.origin}/view?id=${id}`;
 
   useEffect(() => {
     let timeout;
@@ -48,19 +48,19 @@ const ShareCard = ({ setIsModalOpen, isModalOpen, id }) => {
       <div className="mt-2">
         <p className="text-base pb-2">Share this link via</p>
         <div className="flex items-center pb-2 justify-between">
-          <FacebookShareButton url={`http://localhost:3000/view?id=${id}`} onClick={hideModal}>
+          <FacebookShareButton url={`${window.location.origin}/view?id=${id}`} onClick={hideModal}>
             <BiLogoFacebookSquare className="w-8 h-8 fill-[#4267B2] rounded-md bg-white" />
           </FacebookShareButton>
-          <FacebookMessengerShareButton url={`http://localhost:3000/view?id=${id}`} onClick={hideModal}>
+          <FacebookMessengerShareButton url={urlLink} onClick={hideModal}>
             <BiLogoMessenger className="w-8 h-8 rounded-md fill-[#00B2FF] bg-white" />
           </FacebookMessengerShareButton>
-          <WhatsappShareButton url={`http://localhost:3000/view?id=${id}`} onClick={hideModal}>
+          <WhatsappShareButton url={urlLink} onClick={hideModal}>
             <BiLogoWhatsappSquare className="w-8 h-8 rounded-md fill-[#25D366] bg-white" />
           </WhatsappShareButton>
-          <TwitterShareButton url={`http://localhost:3000/view?id=${id}`} onClick={hideModal}>
+          <TwitterShareButton url={urlLink} onClick={hideModal}>
             <BiLogoTwitter className="w-8 h-8 rounded-md fill-[#1DA1F2] bg-white" />
           </TwitterShareButton>
-          <EmailShareButton url={`http://localhost:3000/view?id=${id}`} onClick={hideModal}>
+          <EmailShareButton url={urlLink} onClick={hideModal}>
             <BiSolidEnvelope className="w-8 p-0.5 h-8 rounded-md bg-white fill-gray-500" />
           </EmailShareButton>
         </div>
@@ -71,7 +71,7 @@ const ShareCard = ({ setIsModalOpen, isModalOpen, id }) => {
             className="pl-2 pr-3 w-full outline-none bg-transparent truncate"
             type="text"
             placeholder="link"
-            value={`http://localhost:3000/view?id=${id}`}
+            value={urlLink}
             ref={linkField}
             readOnly
           />
