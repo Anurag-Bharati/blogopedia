@@ -8,9 +8,14 @@ const itemsPerPage = 6;
 
 const Featured = ({ blogs }) => {
   const [featuredBlogs, setFeaturedBlogs] = useState(blogs?.reverse() ?? []);
+  const [urlLink, setUrlLink] = useState("");
   useEffect(() => {
     setFeaturedBlogs(blogs?.reverse() ?? []);
   }, [blogs]);
+
+  useEffect(() => {
+    setUrlLink(window.location.origin);
+  }, []);
 
   // Pagination
   const [itemOffset, setItemOffset] = useState(0);
@@ -38,13 +43,11 @@ const Featured = ({ blogs }) => {
       </div>
       <div className="flex flex-col gap-1 max-w-5xl mx-auto">
         {featuredBlogs?.length === 0 && (
-          <div className="flex gap-2 self-end ">
-            <span className="h-6 w-32 md:w-64 rounded-full shimmer" />
-          </div>
+          <>
+            <ContentCardShimmer />
+          </>
         )}
-
-        {featuredBlogs?.length === 0 && <ContentCardShimmer />}
-        <Blogs currentItems={currentItems} hideBlog={hideBlog} />
+        <Blogs currentItems={currentItems} hideBlog={hideBlog} urlLink={urlLink} />
         <div className="mb-4">
           <ReactPaginate
             breakLabel="..."
@@ -63,11 +66,11 @@ const Featured = ({ blogs }) => {
   );
 };
 
-function Blogs({ currentItems, hideBlog }) {
+function Blogs({ currentItems, hideBlog, urlLink }) {
   return (
     <>
       {currentItems.map((blog, i) => (
-        <ContentCard varitent="blog" data={blog} key={i} hideBlog={hideBlog} />
+        <ContentCard varitent="blog" data={blog} key={i} hideBlog={hideBlog} urlLink={urlLink} />
       ))}
     </>
   );

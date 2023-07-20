@@ -6,15 +6,15 @@ import ShareCard from "./ShareCard";
 import ConfirmCard from "./ConfirmCard";
 import Link from "next/link";
 
-const ContentCard = ({ varient = "blog", data, hideBlog }) => {
+const ContentCard = ({ varient = "blog", data, hideBlog, urlLink }) => {
   const [isModalOpen, setIsModalOpen] = useState({ share: false, hide: false });
   const toggleShareModal = () => setIsModalOpen({ hide: false, share: !isModalOpen.share });
   const toggleHideModal = () => setIsModalOpen({ share: false, hide: !isModalOpen.hide });
   return (
-    <div className="relative flex pb-6 justify-center">
+    <div className="relative flex pb-6 justify-center ">
       <div className={`break-words  w-full  ${varient === "article" ? "order-2" : ""}`}>
         <Link href={`/view?id=${data?.id}`} title={data?.title}>
-          <h1 className="pb-2 text-xl sm:text-2xl whitespace-wrap">{data?.title}</h1>
+          <h1 className="pb-2 line-clamp-2  text-md sm:text-2xl whitespace-wrap">{data?.title}</h1>
           {varient === "blog" && (
             <>
               <p className="truncate pb-2 text-sm text-[#999]">
@@ -22,32 +22,32 @@ const ContentCard = ({ varient = "blog", data, hideBlog }) => {
               </p>
             </>
           )}
-          <p className={`${varient === "blog" ? "line-clamp-3" : "line-clamp-4"}`}>{data?.tldr}</p>
+          <p className={`text-sm sm:text-base ${varient === "blog" ? "line-clamp-3" : "line-clamp-4"}`}>{data?.tldr}</p>
         </Link>
-        <div className="py-6">
-          <div className="flex justify-between">
-            <div className="flex-[1_0_auto] items-center flex gap-1">
+        <div className="py-6 relative ">
+          <div className="  flex justify-between">
+            <div className="self-start items-center flex gap-1">
               {data?.tags.map((tag, i) => {
                 if (i > 1) return null;
                 else
                   return (
-                    <span className="rounded-full bg-red-900 px-3 py-1 flex gap-2 items-center" key={i}>
-                      <BiPurchaseTag />
-                      <p className="w-8 sm:w-auto truncate">{tag}</p>
+                    <span className="rounded-full bg-red-900 px-1 text-xs sm:text-base sm:px-3 sm:py-1 flex gap-2 items-center" key={i}>
+                      <BiPurchaseTag className="hidden sm:block" />
+                      <p className="sm:w-auto truncate">{tag}</p>
                     </span>
                   );
               })}
-              <span className=" px-3 py-1 flex gap-2 items-center">
-                <BiTime />
-                <p>{data?.readTime} min read</p>
+              <span className=" px-1 text-sm sm:text-base sm:px-3 sm:py-1 flex sm:gap-2 items-center">
+                <BiTime className="hidden sm:block" />
+                <p className="truncate min-w-0 inline">{data?.readTime} min read</p>
               </span>
             </div>
-            <div className="relative flex-[0_0_0px] justify-end items-center flex gap-4">
+            <div className=" self-end justify-end items-center flex gap-4">
               <BiBookOpen className="w-5 h-5 cursor-pointer" aria-label="add to reading list" title="add to reading list" />
               <div>
                 <BiBlock className="w-5 h-5 cursor-pointer" aria-label="show less" title="show less" onClick={toggleHideModal} />
                 <div
-                  className={`absolute left-0 right-0 w-full translate-y-2 -translate-x-1/2 select-none transition z-10 ${
+                  className={`absolute  right-0 w-fit md:translate-x-1/4 translate-y-2 select-none transition z-10 ${
                     isModalOpen.hide ? "scale-95 opacity-100" : "scale-90 opacity-0 pointer-events-none "
                   }`}
                 >
@@ -57,20 +57,20 @@ const ContentCard = ({ varient = "blog", data, hideBlog }) => {
               <div>
                 <BiShare className="w-5 h-5 cursor-pointer select-none" aria-label="share" title="share" onClick={toggleShareModal} />
                 <div
-                  className={`absolute left-0 right-0 w-full translate-y-2 -translate-x-1/2 select-none transition z-10 ${
+                  className={`absolute right-0 w-fit translate-y-2  select-none transition z-10  md:translate-x-1/2 ${
                     isModalOpen.share ? "scale-95 opacity-100" : "scale-90 opacity-0 pointer-events-none "
                   }`}
                 >
-                  <ShareCard setIsModalOpen={setIsModalOpen} isModalOpen={isModalOpen} id={data?.id} />
+                  <ShareCard setIsModalOpen={setIsModalOpen} isModalOpen={isModalOpen} urlLink={`${urlLink}/view?id=${data?.id}`} />
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className={` block py-5 ${varient === "blog" ? "pl-2 sm:pl-14" : "pr-2 sm:pr-14"}`}>
+      <div className={` hidden md:block  py-5 ${varient === "blog" ? "pl-2 sm:pl-14" : "pr-2 sm:pr-14"}`}>
         <a>
-          <div className="rounded-xl bg-[#222] h-full w-[200px] overflow-clip   hidden md:block">
+          <div className="rounded-xl bg-[#222] h-full w-[200px] overflow-clip  ">
             <Image src={data?.cover} width={300} height={300} alt="..." className="w-full h-full object-cover " />
           </div>
         </a>
@@ -108,9 +108,7 @@ export const ContentCardShimmer = () => {
               </span>
             </div>
             <div className="relative flex-[0_0_0px] justify-end items-center flex gap-4 ">
-              <span className="w-6 h-6 rounded-md cursor-pointer shimmer" aria-label="add to reading list" title="add to reading list " />
-              <span className="w-6 h-6 rounded-md cursor-pointer shimmer" aria-label="show less" title="show less" />
-              <span className="w-6 h-6  rounded-md cursor-pointer select-none shimmer" aria-label="share" title="share" />
+              <span className="w-10 h-6 rounded-md cursor-pointer shimmer" aria-label="add to reading list" title="add to reading list " />
             </div>
           </div>
         </div>

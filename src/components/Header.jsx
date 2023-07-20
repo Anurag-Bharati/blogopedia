@@ -73,15 +73,15 @@ const Header = () => {
     <header id="header" className="relative w-full mt-[90px]">
       {/* Wrapper for top-header */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-black border-b-[1px] border-[#222]">
-        <div className="flex py-3 md:py-5 px-6 md:px-8 mx-auto max-w-[1280px]">
-          <Link passHref={true} href="/" scroll={false} className="inline-block py-1 whitespace-nowrap mr-2 w-40 text-center my-auto z-10">
+        <div className="flex py-3 md:py-5 px-0 md:px-8 mx-auto max-w-[1280px]">
+          <Link passHref={true} href="/" scroll={false} className=" py-1 whitespace-nowrap mr-2 w-40 text-center my-auto z-10 hidden sm:inline-block">
             <Image src="/assets/svgs/logo-full.svg" width={120} height={120} alt="Blogopedia logo; varient: full" />
           </Link>
-          <div className="flex basis-full justify-center">
-            <div className="flex gap-4 items-center float-left px-0 pl-7 md:px-7 py-1 w-full justify-end md:justify-center isolate">
+          <div className="flex basis-full sm:justify-center">
+            <div className="flex gap-4 items-center float-left  md:pl-7 md:px-7 py-1 w-full  md:justify-center justify-between isolate sm:px-0">
               <div className="absolute w-full h-full  bg-black z-0"></div>
               <ul
-                className="flex flex-col list-none  hover:cursor-pointer "
+                className="flex flex-col list-none  hover:cursor-pointer ml-5 sm:ml-0"
                 onMouseEnter={showAllBooks}
                 onMouseLeave={hideAllBooks}
                 onClick={toggleShowBooks}
@@ -161,10 +161,10 @@ const Header = () => {
                   </div>
                 </li>
               </ul>
-              <Link passHref={true} href="/#" className="z-10 mr-2">
+              <Link passHref={true} href="/#" className="z-10 mr-2  hidden sm:block">
                 <p className=" text-sm md:text-base">Home</p>
               </Link>
-              <Link passHref={true} href="/#featured" className="z-10 mr-2 ">
+              <Link passHref={true} href="/#featured" className="z-10 mr-2 hidden sm:block">
                 <p className=" text-sm md:text-base">Featured</p>
               </Link>
               <NiceSearchBar className="relative hidden md:block flex-grow z-10 max-w-sm ml-auto" />
@@ -214,17 +214,19 @@ const Header = () => {
                   </div>
                 </div>
               </div>
-              {status === "loading" && <AvatarShimmer className="h-8 w-8 cursor-wait" />}
-              {status === "authenticated" && <UserOptionsBar session={session} />}
-              {status === "unauthenticated" && (
-                <Link
-                  passHref={true}
-                  href="/auth"
-                  className="relative h-8 w-8 inline-flex justify-center items-center cursor-pointer z-10  border-2 border-white rounded-full"
-                >
-                  <BiUser className="h-6 w-6" />
-                </Link>
-              )}
+              <div className="mr-5 sm:mr-0">
+                {status === "loading" && <AvatarShimmer className="h-8 w-8 cursor-wait" />}
+                {status === "authenticated" && <UserOptionsBar session={session} />}
+                {status === "unauthenticated" && (
+                  <Link
+                    passHref={true}
+                    href="/auth"
+                    className="relative h-8 w-8 inline-flex justify-center items-center cursor-pointer z-10  border-2 border-white rounded-full"
+                  >
+                    <BiUser className="h-6 w-6" />
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -240,11 +242,11 @@ const Header = () => {
         onClick={() => setShowCourses(false)}
       ></div>
       <div
-        className={` z-10 block md:hidden fixed top-[72px] w-3/4 right-0 bottom-0 bg-white shadow transition duration-500 ease-out ${
+        className={` z-10 block md:hidden fixed top-[72px] w-3/4 right-0 bottom-0 bg-[#00000099] shadow transition duration-500 ease-out ${
           showBooks ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <ul className="py-2 text-md md:text-sm text-gray-700 overflow-y-scroll max-h-full">
+        <ul className="py-2 text-md md:text-sm text-white overflow-y-scroll max-h-full">
           {data.categories.map((e, i) => (
             <li key={`data:${i}`}>
               <a href="#" className="block px-4 py-4 md:py-2 hover:bg-gray-100 truncate" onClick={() => handleSwitch(e.name)}>

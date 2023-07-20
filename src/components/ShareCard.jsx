@@ -12,13 +12,12 @@ import {
 } from "react-icons/bi";
 import { EmailShareButton, FacebookMessengerShareButton, FacebookShareButton, TwitterShareButton, WhatsappShareButton } from "react-share";
 
-const ShareCard = ({ setIsModalOpen, isModalOpen, id }) => {
+const ShareCard = ({ setIsModalOpen, isModalOpen, urlLink }) => {
   const [state, setState] = useState({ copied: false });
   const handleCopy = () => {
     navigator.clipboard.writeText(linkField.current.value);
     setState({ copied: true });
   };
-  const urlLink = `${window.location.origin}/view?id=${id}`;
 
   useEffect(() => {
     let timeout;
@@ -36,19 +35,19 @@ const ShareCard = ({ setIsModalOpen, isModalOpen, id }) => {
   const linkField = useRef(null);
 
   return (
-    <div className=" min-w-[256px] mx-4 p-4 rounded-xl md:w-1/2 lg:w-1/3 bg-[#222]">
+    <div className="w-[256px] whitespace-nowrap p-4 rounded-xl  bg-[#222]">
       <div className="flex justify-between items center">
         <div className="flex items-center justify-center">
           <p className="text-xl font-medium">Share this blog?</p>
         </div>
-        <div className=" hover:bg-red-500 cursor-pointer  font-sans w-6 h-6 flex items-center justify-center rounded-full" onClick={hideModal}>
+        <div className=" hover:bg-red-500 cursor-pointer  ml-2 font-sans w-6 h-6 flex items-center justify-center rounded-full" onClick={hideModal}>
           <BiXCircle className="w-6 h-6 text-red-400 hover:text-[#222]" />
         </div>
       </div>
       <div className="mt-2">
         <p className="text-base pb-2">Share this link via</p>
         <div className="flex items-center pb-2 justify-between">
-          <FacebookShareButton url={`${window.location.origin}/view?id=${id}`} onClick={hideModal}>
+          <FacebookShareButton url={urlLink} onClick={hideModal}>
             <BiLogoFacebookSquare className="w-8 h-8 fill-[#4267B2] rounded-md bg-white" />
           </FacebookShareButton>
           <FacebookMessengerShareButton url={urlLink} onClick={hideModal}>

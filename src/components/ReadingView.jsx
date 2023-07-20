@@ -20,11 +20,13 @@ import UserOptionsBar from "./UserOptionsBar";
 
 const ReadingView = ({ id, blog }) => {
   const { data: session, status } = useSession();
-  const [state, setState] = useState({ hideAside: false });
+  const [state, setState] = useState({ hideAside: true });
   const [hasLiked, setHasLiked] = useState(false);
   const [likeCounter, setLikeCounter] = useState(blog?.likes);
   const [isModalOpen, setIsModalOpen] = useState({ share: false });
   const toggleShareModal = () => setIsModalOpen({ hide: false, share: !isModalOpen.share });
+  const [urlLink, setUrlLink] = useState("");
+
   const docRef = useMemo(() => doc(firestore, "blogs", id), [id]);
   const ttsText = useMemo(() => getCleanPlainText(blog?.content), [blog?.content]);
 
@@ -49,6 +51,11 @@ const ReadingView = ({ id, blog }) => {
     updateDoc(docRef, { views: blog.views + 1 }).then(() => console.log("Views updated"));
     if (blog?.likedBy?.includes(session.user.email)) setHasLiked(true);
   }, [docRef, blog, status, session]);
+
+  useEffect(() => {
+    if (!window) return;
+    setUrlLink(`${window.location.origin}/view?id=${id}`);
+  }, [id]);
 
   return (
     <main className="w-full h-screen text-black ">
@@ -128,7 +135,7 @@ const ReadingView = ({ id, blog }) => {
                         isModalOpen.share ? "scale-95 opacity-100" : "scale-90 opacity-0 pointer-events-none "
                       }`}
                     >
-                      <ShareCard setIsModalOpen={setIsModalOpen} isModalOpen={isModalOpen} id={id} />
+                      <ShareCard setIsModalOpen={setIsModalOpen} isModalOpen={isModalOpen} id={id} urlLink={urlLink} />
                     </div>
                   </span>
                 </div>

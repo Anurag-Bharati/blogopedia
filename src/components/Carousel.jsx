@@ -15,15 +15,17 @@ const Carousel = ({ recentBlogs }) => {
         src="/assets/svgs/wave-curve-invert.svg"
         height={100}
         width={100}
-        className="absolute -top-1 w-full z-10 pointer-events-none fill-auto"
+        className="absolute -top-1 w-full z-10  left-0 right-0 mx-auto"
         alt="..."
+        draggable="false"
       />
       <Image
         src="/assets/svgs/wave-curve.svg"
         height={100}
         width={100}
-        className="absolute -bottom-1  w-full z-10 pointer-events-none fill-auto"
+        className="absolute -bottom-1  w-full z-10  fill-auto pointer-events-none"
         alt="..."
+        draggable="false"
       />
       <Swiper
         speed={3000}
@@ -89,8 +91,8 @@ const CarouselItem = ({ blog = null, initSwitch }) => {
       </Link>
       <Image
         src={blog?.coverImage ?? "/assets/images/hero-background.jpg"}
-        className="object-cover w-full h-full pointer-events-none -hue-rotate-15"
-        height={1000}
+        className="object-cover w-full max-h-96 pointer-events-none -hue-rotate-15"
+        height={800}
         width={1500}
         alt="..."
       />
